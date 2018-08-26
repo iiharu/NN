@@ -12,6 +12,23 @@ BATCH_SIZE = 100
 EPOCHS = 8
 VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
 
+# class LeNet(keras.Model):
+
+#     def __init__(self, input_shape=(784, ), classes=10):
+#         super(LeNet, self).__init__(name='LeNet')
+
+#         self.batch_normalize = karas.layers.BatchNormalization(axis=-1, input_shape=input_shape)
+#         self.dense1 = keras.layers.Dense(300, activation=keras.activations.relu)
+#         self.dense2 = Dense(100, activation=keras.activations.relu)
+#         self.dense3 = Dense(CLASSES, activation=keras.activations.softmax)
+
+#     def call(self, inputs):
+#         x = self.batch_normalize(x)
+#         x = self.dense1(x)
+#         x = self.dense2(x)
+#         return self.dense3(x)
+
+        
 def prepare():
     (X_train, Y_train), (X_test, Y_test) = keras.datasets.mnist.load_data()
     X_train = np.reshape(X_train, (TRAIN_SIZE, ROWS * COLS))
