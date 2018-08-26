@@ -22,14 +22,13 @@ def prepare():
     return (X_train, Y_train), (X_test, Y_test)
 
 def build():
-    model = keras.Sequential()
-    model.add(keras.layers.BatchNormalization(axis=-1, input_shape=(ROWS * COLS, )))
-    model.add(keras.layers.Dense(300))
-    model.add(keras.layers.Activation(keras.activations.relu))
-    model.add(keras.layers.Dense(100))
-    model.add(keras.layers.Activation(keras.activations.relu))
-    model.add(keras.layers.Dense(CLASSES))
-    model.add(keras.layers.Activation(keras.activations.softmax))
+
+    model = keras.Sequential([
+        keras.layers.BatchNormalization(axis=-1, input_shape=(ROWS * COLS, )),
+        keras.layers.Dense(300, activation=keras.activations.relu),
+        keras.layers.Dense(100, activation=keras.activations.relu),
+        keras.layers.Dense(CLASSES, activation=keras.activations.softmax)
+    ])
 
     model.summary()
     
