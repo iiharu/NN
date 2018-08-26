@@ -1,0 +1,8 @@
+#+TITLE: Keras Deep Learning
+
+* Requirement
+- Python3
+- NumPy
+- MatPlotLib
+- TensorFlow (tf.keras)
+
