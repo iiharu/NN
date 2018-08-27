@@ -66,7 +66,7 @@ if __name__ == '__main__':
     model.fit(X_train, Y_train,
               batch_size=BATCH_SIZE,
               epochs=EPOCHS,
-              verbose=1,
+              verbose=2,
               validation_split=VALIDATION_SPLIT)
 
     score = model.evaluate(X_test, Y_test)

@@ -44,14 +44,10 @@ def build():
 
     model = keras.Sequential([
         keras.layers.BatchNormalization(axis=-1, input_shape=INPUT_SHAPE),
-        # keras.layers.Conv2D(filters=6, kernel_size=(5, 5), strides=(1, 1), padding='same'),
         keras.layers.Conv2D(filters=6, kernel_size=(5, 5), strides=(1, 1)),
-        # keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
         keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
         keras.layers.Activation(keras.activations.sigmoid),
-        # keras.layers.Conv2D(filters=16, kernel_size=(5, 5), strides=(1, 1), padding='same'),
         keras.layers.Conv2D(filters=16, kernel_size=(5, 5), strides=(1, 1)),
-        # keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2), padding='same'),
         keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
         keras.layers.Activation(keras.activations.sigmoid),
         keras.layers.Flatten(),
@@ -78,7 +74,10 @@ if __name__ == '__main__':
                   metrics=['acc'])
 
     model.fit(X_train, Y_train,
-              batch_size=BATCH_SIZE,epochs=EPOCHS,verbose=1, validation_split=VALIDATION_SPLIT)
+              batch_size=BATCH_SIZE,
+              epochs=EPOCHS,
+              verbose=2,
+              validation_split=VALIDATION_SPLIT)
 
     score = model.evaluate(X_test, Y_test)
 
