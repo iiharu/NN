@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+MLP.py
+
+DataSet: MNIST
+Model: LeNet-300-100
+
+"""
+
 import numpy as np
 from tensorflow import keras
+
+from util import plot
 
 CLASSES = 10
 ROWS, COLS = 28, 28
@@ -63,12 +73,14 @@ if __name__ == '__main__':
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
-    model.fit(X_train, Y_train,
-              batch_size=BATCH_SIZE,
-              epochs=EPOCHS,
-              verbose=2,
-              validation_split=VALIDATION_SPLIT)
+    history = model.fit(X_train, Y_train,
+                        batch_size=BATCH_SIZE,
+                        epochs=EPOCHS,
+                        verbose=2,
+                        validation_split=VALIDATION_SPLIT)
 
+    plot(history, metrics=['loss', 'acc'])
+    
     score = model.evaluate(X_test, Y_test)
 
     print("loss: ", score[0])
