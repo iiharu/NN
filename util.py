@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+
+from matplotlib import pyplot
+
+
+def plot(history, metrics=['loss']):
+
+    for metric in metrics:
+        val_metric = "val" + metric
+        pyplot.plot(history.history[metric])
+        pyplot.plot(history.history[val_metric])
+        pyplot.title(metric)
+        pyplot.ylabel(metric)
+        pyplot.xlabel('epoch')
+        pyplot.legend(['train', 'test'], loc='best')
+        pyplot.show()
+
+
