@@ -14,5 +14,3 @@ def plot(history, metrics=['loss']):
         pyplot.xlabel('epoch')
         pyplot.legend(['train', 'test'], loc='best')
         pyplot.show()
-
-
