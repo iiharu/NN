@@ -28,7 +28,7 @@ VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
 #         x = self.dense2(x)
 #         return self.dense3(x)
 
-        
+
 def prepare():
     (X_train, Y_train), (X_test, Y_test) = keras.datasets.mnist.load_data()
     X_train = np.reshape(X_train, (TRAIN_SIZE, ROWS * COLS))

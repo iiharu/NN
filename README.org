@@ -13,3 +13,10 @@ python3 -m venv venv
 . venv/bin/activate
 pip install numpy matplotlib tensorflow keras
 #+end_src
+
+* Contains
+
+| File       | DataSets | Model               |
+| MLP.py     | mnist    | MLP (LeNet 300 100) |
+| Cifar10.py | cifar10  | CNN (LeNet5)        |
+| LeNet5.py  | cifar10  | LeNet5              |
