@@ -9,12 +9,13 @@ CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
 
 BATCH_SIZE = 100
-EPOCHS = 8
+EPOCHS = 4
 
 TRAIN_SIZE = None
 TEST_SIZE = None
 VALIDATION_SPLIT = None
 INPUT_SHAPE = None
+
 
 def prepare():
 
@@ -88,9 +89,9 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=X_train.shape[0],
+                                  steps_per_epoch=TRAIN_SIZE,
                                   epochs=EPOCHS,
-                                  verbose=1)
+                                  verbose=2)
 
     plot(history)
     
