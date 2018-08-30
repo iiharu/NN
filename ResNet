@@ -1,0 +1,32 @@
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, BatchNormalization, Flatten
+from tensorflow.keras.datasets import cifar10
+
+from tensorflow.keras.utils import to_categorical
+
+from layers import Residual
+
+CLASSES = 10
+ROWS, COLS, CHS = 32, 32, 3
+
+if __name__ == '__main__':
+
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    Y_train = to_categorical(Y_train, CLASSES)
+    Y_test = to_categorical(Y_test, CLASSES)
+
+    model = Sequential([
+        BatchNormalization(axis=-1, input_shape=(ROWS, COLS, CHS, )),
+        Residual(16, (3, 3)),
+        Residual(32, (3, 3)),
+        Dense(300, activation='relu'),
+        Dense(100, activation='relu'),
+        Dense(CLASSES, activation='softmax')
+    ])
+
+    model.summary()

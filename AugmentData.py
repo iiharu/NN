@@ -8,8 +8,8 @@ from util import plot
 CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
 
-BATCH_SIZE = 100
-EPOCHS = 4
+BATCH_SIZE = 500
+EPOCHS = 16
 
 TRAIN_SIZE = None
 TEST_SIZE = None
