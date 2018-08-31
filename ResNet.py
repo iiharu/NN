@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
     model = build(input_shape=(ROWS, COLS, CHS,), n=3)
 
-    model.compile(optimizer=keras.optimizers.Adam(),
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
