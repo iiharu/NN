@@ -7,8 +7,17 @@ from tensorflow.keras.datasets import cifar10
 from tensorflow.keras import backend as K
 from tensorflow.keras.utils import to_categorical
 
+from util import plot
+
 CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
+
+TRAIN_SIZE = 50000
+TEST_SIZE = 10000
+VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
+
+BATCH_SIZE = 100
+EPOCHS = 16
 
 def prepare():
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
@@ -76,6 +85,9 @@ def build(input_shape, n=3):
 
     model.summary()
 
+    # To plot model, commnet out below line.
+    # keras.utils.plot_model(model, to_file='model.png', show_shapes=True, show_layer_names=True)
+
     return model
 
 
@@ -83,25 +95,21 @@ if __name__ == '__main__':
 
     (X_train, Y_train), (X_test, Y_test) = prepare()
 
-    # inputs = keras.Input(shape=(ROWS, COLS, CHS, ))
-    # outputs = residual(inputs, 32, (3, 3), down_sampling=True)
-    # outputs = residual(outputs, 32, (3, 3))
-    # outputs = Flatten()(outputs)
-    # outputs = Dense(1024, activation='relu')(outputs)
-    # outputs = Dense(CLASSES, activation='softmax') (outputs)
-    # model = keras.Model(inputs=inputs, outputs=outputs)
-    #
-    # model.summary()
-
     model = build(input_shape=(ROWS, COLS, CHS, ))
 
-    # model = Sequential([
-    #     BatchNormalization(axis=-1, input_shape=(ROWS, COLS, CHS, )),
-    #     Residual(16, (3, 3)),
-    #     Residual(32, (3, 3)),
-    #     Dense(300, activation='relu'),
-    #     Dense(100, activation='relu'),
-    #     Dense(CLASSES, activation='softmax')
-    # ])
+    model.compile(optimizer=keras.optimizers.Adam(),
+                  loss=keras.losses.categorical_crossentropy,
+                  metrics=['acc'])
 
-    # model.summary()
+    history = model.fit(X_train, Y_train,
+                        batch_size=BATCH_SIZE,
+                        epochs=EPOCHS,
+                        verbose=2,
+                        validation_split=VALIDATION_SPLIT)
+
+    plot(history, metrics=['val', 'acc'])
+
+    score = model.evaluate(X_test, Y_test)
+
+    print("loss: ", score[0])
+    print("acc:  ", score[1])
