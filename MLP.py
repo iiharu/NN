@@ -11,7 +11,7 @@ Model: LeNet-300-100
 import numpy as np
 from tensorflow import keras
 
-from util import plot
+from utils import plot
 
 CLASSES = 10
 ROWS, COLS = 28, 28

@@ -3,7 +3,7 @@
 import numpy as np
 from tensorflow import keras
 
-from util import plot
+from utils import plot
 
 CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
