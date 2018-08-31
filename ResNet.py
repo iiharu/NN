@@ -33,8 +33,8 @@ def residual(inputs, filters, kernel_size, down_sampling=False):
 
     if down_sampling:
         inputs = keras.layers.Conv2D(filters, kernel_size, strides=(2, 2), padding='same')(inputs)
-    elif input_shape[-1] != filters:
-        inputs = keras.layers.Conv2D(filters, (1, 1), padding='same')(inputs)
+    # elif input_shape[-1] != filters:
+    #     inputs = keras.layers.Conv2D(filters, (1, 1), padding='same')(inputs)
 
     outputs = keras.layers.Add()([inputs, outputs])
     outputs = keras.layers.Activation(keras.activations.relu)(outputs)
