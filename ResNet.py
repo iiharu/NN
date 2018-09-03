@@ -60,12 +60,12 @@ def softmax():
     return keras.layers.Activation(keras.activations.softmax)
 
 
-def residual(inputs, filters, kernel_size, down_sampling=False):
+def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
     """
     Residual Block (option B.)
 
     # Examples
-    outputs = residual(outputs, 16, (3, 3), down_sampling=True)
+    outputs = residual(outputs, 16, down_sampling=True)
 
     # Arguments
     inputs: inputs for residual block
@@ -114,20 +114,20 @@ def build(input_shape, n=3):
     inputs = keras.Input(shape=input_shape)
 
     outputs = batch_normalization()(inputs)
-    outputs = conv2d(16, (3, 3))(outputs)
+    outputs = conv2d(16, kernel_size=(3, 3))(outputs)
 
     for i in range(n):
         outputs = residual(outputs, 16, (3, 3))
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 32, (3, 3), down_sampling='same')
+            outputs = residual(outputs, 32, (3, 3), down_sampling=True)
         else:
             outputs = residual(outputs, 32, (3, 3))
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 64, (3, 3), down_sampling='same')
+            outputs = residual(outputs, 64, (3, 3), down_sampling=True)
         else:
             outputs = residual(outputs, 64, (3, 3))
 
@@ -148,7 +148,7 @@ def build(input_shape, n=3):
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = prepare()
 
-    model = build(input_shape=(ROWS, COLS, CHS,), n=3)
+    model = build(input_shape=(ROWS, COLS, CHS,), n=5)
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9),
                   loss=keras.losses.categorical_crossentropy,
