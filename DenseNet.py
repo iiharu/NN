@@ -27,7 +27,6 @@ def conv2d(filters, kernel_size, strides=1):
 
 
 def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3), down_sampling=False):
-    n = 3
 
     outputs = []
 
@@ -43,7 +42,9 @@ def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3), down_sampling=Fa
             inputs = conv2d(growth_rate, kernel_size)(inputs)
         outputs.append(inputs)
 
-    return inputs
+    outputs = concat()(outputs)
+
+    return outputs
 
 
 def transition(inputs, filters=12):
