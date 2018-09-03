@@ -65,7 +65,8 @@ def build(input_shape):
 
     for i in range(n):
         outputs = dense_conv(outputs, growth_rate=k, layers=l)
-        outputs = transition(outputs, (i + 1) * k * l)
+        outputs = transition(outputs, k * l)
+        k += GROWTH_RATE
 
     outputs = global_average_pooling2d()(outputs)
     outputs = dense(CLASSES)(outputs)
