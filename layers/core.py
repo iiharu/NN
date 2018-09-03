@@ -3,12 +3,29 @@
 from tensorflow import keras
 
 
+"""
+Layer function wrappers for Keras Layer.
+
+Do not import all functions in this modules,
+because functions having many parameter is not useful with multiple use.
+"""
+
 def add():
     return keras.layers.Add()
 
 
+def average_pooling2d(pool_size=(2, 2), strides=None):
+    return keras.layers.AveragePooling2D(pool_size=pool_size,
+                                         strides=strides,
+                                         padding='same')
+
+
 def batch_normalization():
     return keras.layers.BatchNormalization()
+
+
+def concat(axis=-1):
+    return keras.layers.Concatenate(axis=axis)
 
 
 def conv2d(filters, kernel_size, strides=1,
@@ -48,7 +65,9 @@ def global_average_pooling2d():
 
 
 def max_pooling2d(pool_size=(2, 2), strides=None):
-    return keras.layers.MaxPooling2D(pool_size=pool_size, strides=strides, padding='same')
+    return keras.layers.MaxPooling2D(pool_size=pool_size,
+                                     strides=strides,
+                                     padding='same')
 
 
 def relu(max_value=None):

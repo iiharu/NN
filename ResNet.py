@@ -36,9 +36,9 @@ def conv2d(filters, kernel_size, strides=1):
                                kernel_size,
                                strides=strides,
                                padding='same',
+                               use_bias=False,
                                kernel_initializer=keras.initializers.he_normal(),
-                               kernel_regularizer=keras.regularizers.l2(0.0001),
-                               use_bias=False)
+                               kernel_regularizer=keras.regularizers.l2(0.0001))
 
 
 def dense(units):
@@ -148,9 +148,9 @@ def build(input_shape, n=3):
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = prepare()
 
-    model = build(input_shape=(ROWS, COLS, CHS,), n=5)
+    model = build(input_shape=(ROWS, COLS, CHS,), n=3)
 
-    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9),
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
