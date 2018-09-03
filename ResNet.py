@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import numpy as np
 from tensorflow import keras
 
 from utils import plot
@@ -148,18 +149,28 @@ def build(input_shape, n=3):
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = prepare()
 
+    X_train, X_val = np.split(X_train, [45000], axis=0)
+    Y_train, Y_val = np.split(Y_train, [45000], axis=0)
+
     model = build(input_shape=(ROWS, COLS, CHS,), n=3)
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
-    history = model.fit(X_train, Y_train,
-                        batch_size=BATCH_SIZE,
-                        epochs=EPOCHS,
-                        verbose=2,
-                        # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
-                        validation_split=VALIDATION_SPLIT)
+    datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4/32,
+                                                           height_shift_range=4/32,
+                                                           horizontal_flip=True,
+                                                           vertical_flip=True)
+
+    datagen.fit(X_train)
+
+    history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
+                                  steps_per_epoch=TRAIN_SIZE // 10,
+                                  epochs=EPOCHS,
+                                  verbose=2,
+                                  callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
+                                  validation_data=(X_val, Y_val))
 
     plot(history, metrics=['loss', 'acc'])
 
