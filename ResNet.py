@@ -64,7 +64,7 @@ def softmax():
     return keras.layers.Activation(keras.activations.softmax)
 
 
-def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False, projection_shortcut='half'):
+def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
     """
     Residual Block (option B.)
 
@@ -87,8 +87,6 @@ def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False, projectio
         inputs = conv2d(filters, (1, 1), strides=2)(inputs)
     else:
         outputs = conv2d(filters, kernel_size)(inputs)
-        if projection_shortcut == 'all':
-            inputs = conv2d(filters, (1, 1))(inputs)
     outputs = batch_normalization()(outputs)
     outputs = relu()(outputs)
     outputs = conv2d(filters, kernel_size)(outputs)
