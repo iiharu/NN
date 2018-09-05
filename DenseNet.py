@@ -43,7 +43,7 @@ def dense(units):
                               kernel_regularizer=keras.regularizers.l2(0.0001))
 
 
-def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3), down_sampling=False):
+def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3)):
 
     outputs = []
 

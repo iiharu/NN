@@ -18,6 +18,8 @@ EPOCHS = 32
 
 def prepare():
     (X_train, Y_train), (X_test, Y_test) = keras.datasets.cifar10.load_data()
+    X_train = X_train.astype(float) / 255
+    X_test = X_test.astype(float) / 255
     Y_train = keras.utils.to_categorical(Y_train, CLASSES)
     Y_test = keras.utils.to_categorical(Y_test, CLASSES)
 
@@ -61,7 +63,7 @@ def softmax():
     return keras.layers.Activation(keras.activations.softmax)
 
 
-def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
+def residual(inputs, filters, kernel_size=(3, 3), options=[]):
     """
     Residual Block (option B.)
 
@@ -79,17 +81,20 @@ def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
         - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
     """
 
-    if down_sampling:
+    for opt in options:
+        if not (opt in ['down_dim']):
+            raise ValueError('Invalid options for residual block'
+                             '(supportted options: "down_dim"): ' + opt)
+
+    if 'down_dim' in options:
         outputs = conv2d(filters, kernel_size, strides=2)(inputs)
+        inputs = conv2d(filters, kernel_size, strides=2)(inputs)
     else:
         outputs = conv2d(filters, kernel_size)(inputs)
 
     outputs = batch_normalization()(outputs)
     outputs = relu()(outputs)
     outputs = conv2d(filters, kernel_size)(outputs)
-
-    if down_sampling:
-        inputs = conv2d(filters, kernel_size, strides=2)(inputs)
 
     outputs = add()([inputs, outputs])
     outputs = relu()(outputs)
@@ -114,21 +119,21 @@ def build(input_shape, n=3):
     """
     inputs = keras.Input(shape=input_shape)
 
-    outputs = batch_normalization()(inputs)
-    outputs = conv2d(16, kernel_size=(3, 3))(outputs)
+    # outputs = batch_normalization()(inputs)
+    outputs = conv2d(16, kernel_size=(3, 3))(inputs)
 
     for i in range(n):
         outputs = residual(outputs, 16, (3, 3))
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 32, (3, 3), down_sampling=True)
+            outputs = residual(outputs, 32, (3, 3), options=['down_dim'])
         else:
             outputs = residual(outputs, 32, (3, 3))
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 64, (3, 3), down_sampling=True)
+            outputs = residual(outputs, 64, (3, 3), options=['down_dim'])
         else:
             outputs = residual(outputs, 64, (3, 3))
 
