@@ -156,6 +156,10 @@ if __name__ == '__main__':
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
+    # We follow the simple data augmentation in "Deeply-supervised nets" (http://arxiv.org/abs/1409.5185) for training:
+    # 4 pixels are padded on each side,
+    # and a 32×32 crop is randomly sampled from the padded image or its horizontal flip.
+    # For testing, we only evaluate the single view of the original 32×32 image.
     datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
                                                            height_shift_range=4,
                                                            fill_mode='constant',
