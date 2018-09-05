@@ -10,7 +10,8 @@ ROWS, COLS, CHS = 32, 32, 3
 TRAIN_SIZE = 50000
 TEST_SIZE = 10000
 
-def load_data(normalize=False, flatten=False, one_hot_label=True):
+
+def load_data(normalize=True, flatten=False, one_hot_label=True):
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
     if normalize:

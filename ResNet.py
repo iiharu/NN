@@ -64,7 +64,7 @@ def softmax():
     return keras.layers.Activation(keras.activations.softmax)
 
 
-def residual(inputs, filters, kernel_size=(3, 3), options=[]):
+def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
     """
     Residual Block (option B.)
 
@@ -82,33 +82,14 @@ def residual(inputs, filters, kernel_size=(3, 3), options=[]):
         - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
     """
 
-    for opt in options:
-        if not (opt in ['down_sampling', 'bottleneck']):
-            raise ValueError('Invalid options for residual block:' + opt)
-
-    if 'bottleneck' in options:
-        outputs = conv2d(filters // 4, (1, 1))(inputs)
-        outputs = batch_normalization()(outputs)
-        outputs = relu()(outputs)
-        if 'down_sampling' in options:
-            inputs = conv2d(filters, (3, 3), strides=2)(inputs)
-            outputs = conv2d(filters // 4, (3, 3), strides=2)(outputs)
-        else:
-            outputs = conv2d(filters // 4, (3, 3))(outputs)
-        outputs = batch_normalization()(outputs)
-        outputs = relu()(outputs)
-        outputs = conv2d(filters, (3, 3))(outputs)
+    if down_sampling:
+        outputs = conv2d(filters, kernel_size, strides=2)(inputs)
+        inputs = conv2d(filters, kernel_size, strides=2)(inputs) # kernel size: (1, 1)? (2, 2)? (3, 3)?
     else:
-        if 'down_sampling' in options:
-            outputs = conv2d(filters, kernel_size, strides=2)(inputs)
-            inputs = conv2d(filters, kernel_size, strides=2)(inputs)
-        else:
-            outputs = conv2d(filters, kernel_size)(inputs)
-
-        outputs = batch_normalization()(outputs)
-        outputs = relu()(outputs)
-        outputs = conv2d(filters, kernel_size)(outputs)
-
+        outputs = conv2d(filters, kernel_size)
+    outputs = batch_normalization()(outputs)
+    outputs = relu()(outputs)
+    outputs = conv2d(filters, kernel_size)(outputs)
     outputs = add()([inputs, outputs])
     outputs = relu()(outputs)
 
@@ -132,23 +113,22 @@ def build(input_shape, n=3):
     """
     inputs = keras.Input(shape=input_shape)
 
-    # outputs = batch_normalization()(inputs)
-    outputs = conv2d(64, kernel_size=(3, 3))(inputs)
+    outputs = conv2d(16, kernel_size=(3, 3))(inputs)
 
     for i in range(n):
-        outputs = residual(outputs, 64, (3, 3), options=['bottleneck'])
-
-    for i in range(n):
-        if i == 0:
-            outputs = residual(outputs, 256, (3, 3), options=['down_sampling', 'bottleneck'])
-        else:
-            outputs = residual(outputs, 256, (3, 3))
+        outputs = residual(outputs, 16)
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 512, (3, 3), options=['down_sampling', 'bottleneck'])
+            outputs = residual(outputs, 32, (3, 3), down_sampling=True)
         else:
-            outputs = residual(outputs, 512, (3, 3))
+            outputs = residual(outputs, 32, (3, 3))
+
+    for i in range(n):
+        if i == 0:
+            outputs = residual(outputs, 64, (3, 3), down_sampling=True)
+        else:
+            outputs = residual(outputs, 64, (3, 3))
 
     outputs = global_average_pooling2d()(outputs)
     outputs = dense(CLASSES)(outputs)
