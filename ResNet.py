@@ -82,11 +82,11 @@ def residual(inputs, filters, kernel_size=(3, 3), options=[]):
     """
 
     for opt in options:
-        if not (opt in ['down_dim']):
+        if not (opt in ['down_sampling']):
             raise ValueError('Invalid options for residual block'
-                             '(supportted options: "down_dim"): ' + opt)
+                             '(supportted options: "down_sampling"): ' + opt)
 
-    if 'down_dim' in options:
+    if 'down_sampling' in options:
         outputs = conv2d(filters, kernel_size, strides=2)(inputs)
         inputs = conv2d(filters, kernel_size, strides=2)(inputs)
     else:
@@ -127,13 +127,13 @@ def build(input_shape, n=3):
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 32, (3, 3), options=['down_dim'])
+            outputs = residual(outputs, 32, (3, 3), options=['down_sampling'])
         else:
             outputs = residual(outputs, 32, (3, 3))
 
     for i in range(n):
         if i == 0:
-            outputs = residual(outputs, 64, (3, 3), options=['down_dim'])
+            outputs = residual(outputs, 64, (3, 3), options=['down_sampling'])
         else:
             outputs = residual(outputs, 64, (3, 3))
 
