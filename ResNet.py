@@ -64,19 +64,9 @@ def softmax():
     return keras.layers.Activation(keras.activations.softmax)
 
 
-def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
+def residual_v1(inputs, filters, kernel_size=(3, 3), down_sampling=False):
     """
-    Residual Block (option B.)
-
-    # Examples
-    outputs = residual(outputs, 16, down_sampling=True)
-
-    # Arguments
-    inputs: inputs for residual block
-    filters: filters for convolution layer
-    kernel_size: kernel size for convolution layrt
-    down_sampling: if true filters are doubled and image col and row are halved.
-        (col, row, filter): (32, 32, 16) => (16, 16, 32)
+    Residual Block v1
 
     # References
         - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
@@ -92,6 +82,30 @@ def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
     outputs = conv2d(filters, kernel_size)(outputs)
     outputs = add()([inputs, outputs])
     outputs = relu()(outputs)
+
+    return outputs
+
+
+def residual(inputs, filters, kernel_size=(3, 3), down_sampling=False):
+    """
+    Residual Block
+
+    # References
+        - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
+        - [Identity Mappings in Deep Residual Networks] (https://arxiv.org/abs/1603.05027)
+    """
+
+    outputs = batch_normalization()(inputs)
+    outputs = relu()(outputs)
+    if down_sampling:
+        outputs = conv2d(filters, kernel_size, strides=2)(outputs)
+        inputs = conv2d(filters, (1, 1), strides=2)(inputs)
+    else:
+        outputs = conv2d(filters, kernel_size)(outputs)
+    outputs = batch_normalization()(outputs)
+    outputs = relu()(outputs)
+    outputs = conv2d(filters, kernel_size)(outputs)
+    outputs = add()([inputs, outputs])
 
     return outputs
 
@@ -150,7 +164,7 @@ if __name__ == '__main__':
     X_train, X_val = np.split(X_train, [45000], axis=0)
     Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
-    model = build(input_shape=(ROWS, COLS, CHS,), n=3)
+    model = build(input_shape=(ROWS, COLS, CHS,), n=9)
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
@@ -171,7 +185,7 @@ if __name__ == '__main__':
                                   steps_per_epoch=TRAIN_SIZE // 10,
                                   epochs=EPOCHS,
                                   verbose=2,
-                                  callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
+                                  # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
                                   validation_data=(X_val, Y_val))
 
     plot(history, metrics=['loss', 'acc'])
