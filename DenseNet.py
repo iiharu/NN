@@ -113,6 +113,7 @@ if __name__ == '__main__':
 
     datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
                                                            height_shift_range=4,
+                                                           fill_mode='constant',
                                                            horizontal_flip=True)
 
     datagen.fit(X_train)
