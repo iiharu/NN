@@ -156,10 +156,9 @@ if __name__ == '__main__':
                   loss=keras.losses.categorical_crossentropy,
                   metrics=['acc'])
 
-    datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4/32,
-                                                           height_shift_range=4/32,
-                                                           horizontal_flip=True,
-                                                           vertical_flip=True)
+    datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
+                                                           height_shift_range=4,
+                                                           horizontal_flip=True)
 
     datagen.fit(X_train)
 
