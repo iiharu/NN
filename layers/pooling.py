@@ -2,7 +2,8 @@
 
 from tensorflow import keras
 
-def average_pooling2d(pool_size=2, strides=None):
+
+def average_pooling1d(pool_size=2, strides=None):
     return keras.layers.AveragePooling1D(pool_size=pool_size,
                                          strides=strides,
                                          padding='same')
