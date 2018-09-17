@@ -10,6 +10,8 @@ from .activation import tanh
 from .core import dense
 from .core import dropout
 from .core import flatten
+# Embeddings
+from .embedding import embedding
 # Convolutional Layers
 from .convolutional import conv2d
 from .convolutional import cropping2d
@@ -27,4 +29,5 @@ from .pooling import global_average_pooling2d
 from .pooling import max_pooling2d
 # Recurrent Layers
 from .recurrent import conv_lstm2d
+from .recurrent import gru
 from .recurrent import lstm
