@@ -69,6 +69,7 @@ def transition(inputs, filters=12):
     outputs = average_pooling2d(pool_size=(2, 2), strides=2)(outputs)
     return outputs
 
+
 def build(input_shape):
 
     k = GROWTH_RATE

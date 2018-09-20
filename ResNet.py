@@ -4,6 +4,7 @@ import numpy as np
 from tensorflow import keras
 from tensorflow.keras import backend as K
 
+from layers import add, batch_normalization, global_average_pooling2d, relu, softmax
 from utils import plot
 
 CLASSES = 10
@@ -27,14 +28,6 @@ def prepare():
     return (X_train, Y_train), (X_test, Y_test)
 
 
-def add():
-    return keras.layers.Add()
-
-
-def batch_normalization():
-    return keras.layers.BatchNormalization()
-
-
 def conv2d(filters, kernel_size, strides=1):
     return keras.layers.Conv2D(filters,
                                kernel_size,
@@ -48,20 +41,6 @@ def conv2d(filters, kernel_size, strides=1):
 def dense(units):
     return keras.layers.Dense(units,
                               kernel_regularizer=keras.regularizers.l2(0.0001))
-
-
-def global_average_pooling2d():
-    return keras.layers.GlobalAveragePooling2D()
-
-
-def relu():
-    # return keras.layers.ReLU()
-    return keras.layers.Activation(keras.activations.relu)
-
-
-def softmax():
-    # return keras.layers.Softmax()
-    return keras.layers.Activation(keras.activations.softmax)
 
 
 def residual_v1(inputs, filters, kernel_size=(3, 3), down_sampling=False):
