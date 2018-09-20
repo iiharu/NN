@@ -12,7 +12,8 @@ def conv_lstm2d(filters, kernel_size, strides=(1, 1),
                 activity_regularizer=None,
                 kernel_constraint=None, recurrent_constraint=None, bias_constraint=None,
                 return_sequences=False, go_backwards=False, stateful=False,
-                dropout=0., recurrent_dropout=0.):
+                dropout=0., recurrent_dropout=0.,
+                **kwargs):
     return keras.layers.ConvLSTM2D(filters, kernel_size, strides=strides,
                                    padding='same', data_format=None, dilation_rate=(1, 1),
                                    activation=activation, recurrent_activation=recurrent_activation,
@@ -23,7 +24,8 @@ def conv_lstm2d(filters, kernel_size, strides=(1, 1),
                                    activity_regularizer=activity_regularizer,
                                    kernel_constraint=kernel_constraint, recurrent_constraint=recurrent_constraint, bias_constraint=bias_constraint,
                                    return_sequences=return_sequences, go_backwards=go_backwards, stateful=stateful,
-                                   dropout=dropout, recurrent_dropout=recurrent_dropout)
+                                   dropout=dropout, recurrent_dropout=recurrent_dropout,
+                                   **kwargs)
 
 
 def gru(units,
@@ -36,7 +38,8 @@ def gru(units,
         dropout=0.0, recurrent_dropout=0.0,
         implementation=1,
         return_sequences=False, return_state=False, go_backwards=False,
-        stateful=False, unroll=False, reset_after=False):
+        stateful=False, unroll=False, reset_after=False,
+        **kwargs):
     return keras.layers.GRU(units,
                             activation=activation, recurrent_activation=recurrent_activation,
                             use_bias=use_bias,
@@ -47,7 +50,8 @@ def gru(units,
                             dropout=dropout, recurrent_dropout=recurrent_dropout,
                             implementation=implementation,
                             return_sequences=return_sequences, return_state=return_state, go_backwards=go_backwards,
-                            stateful=stateful, unroll=unroll, reset_after=reset_after)
+                            stateful=stateful, unroll=unroll, reset_after=reset_after,
+                            **kwargs)
 
 
 def lstm(units,
@@ -61,7 +65,8 @@ def lstm(units,
          dropout=0.0, recurrent_dropout=0.0,
          implementation=1,
          return_sequences=False, return_state=False, go_backwards=False,
-         stateful=False, unroll=False):
+         stateful=False, unroll=False,
+         **kwargs):
     return keras.layers.LSTM(units,
                              activation=activation, recurrent_activation=recurrent_activation,
                              use_bias=use_bias,
@@ -73,4 +78,5 @@ def lstm(units,
                              dropout=dropout, recurrent_dropout=recurrent_dropout,
                              implementation=implementation,
                              return_sequences=return_sequences, return_state=return_state, go_backwards=go_backwards,
-                             stateful=stateful, unroll=unroll)
+                             stateful=stateful, unroll=unroll,
+                             **kwargs)

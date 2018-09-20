@@ -3,9 +3,9 @@
 from tensorflow import keras
 
 
-def add():
-    return keras.layers.Add()
+def add(**kwargs):
+    return keras.layers.Add(**kwargs)
 
 
-def concat(axis=-1):
-    return keras.layers.Concatenate(axis=axis)
+def concat(axis=-1, **kwargs):
+    return keras.layers.Concatenate(axis=axis, **kwargs)
