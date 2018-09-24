@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from tensorflow import keras
+from tensorflow.keras.layers import BatchNormalization
 
 
 def batch_normalization(axis=-1, **kwargs):
-    return keras.layers.BatchNormalization(axis=axis, **kwargs)
+    return BatchNormalization(axis=axis, **kwargs)
