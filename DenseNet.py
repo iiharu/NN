@@ -14,9 +14,9 @@ TEST_SIZE = 10000
 VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
 
 GROWTH_RATE = 12
-LAYERS = 40
+LAYERS = 100
 BLOCKS = 3
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 32
 
 
@@ -43,20 +43,21 @@ def dense(units):
                               kernel_regularizer=keras.regularizers.l2(0.0001))
 
 
-def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3)):
+def dense_conv(inputs, filters, layers, bottleneck=False):
 
     outputs = []
 
     for k in range(layers):
-        if k <= 1:
-            inputs = batch_normalization()(inputs)
-            inputs = relu()(inputs)
-            inputs = conv2d(growth_rate, kernel_size)(inputs)
-        else:
+        if k > 1:
             inputs = concat()(outputs)
+        if bottleneck:
             inputs = batch_normalization()(inputs)
             inputs = relu()(inputs)
-            inputs = conv2d(growth_rate, kernel_size)(inputs)
+            inputs = conv2d(filters=filters, kernel_size=(1, 1))(inputs)
+        inputs = batch_normalization()(inputs)
+        inputs = relu()(inputs)
+        inputs = conv2d(filters=filters, kernel_size=(3, 3))(inputs)
+
         outputs.append(inputs)
 
     outputs = concat()(outputs)
@@ -64,24 +65,36 @@ def dense_conv(inputs, growth_rate, layers, kernel_size=(3, 3)):
     return outputs
 
 
-def transition(inputs, filters=12):
+def transition(inputs, filters):
     outputs = conv2d(filters, kernel_size=(1, 1))(inputs)
     outputs = average_pooling2d(pool_size=(2, 2), strides=2)(outputs)
     return outputs
 
 
 def build(input_shape):
+    """
+    Dense Block for Cifar10/Cifar100.
+
+    Num of Dense Block: n = 3
+    Num of Transition Block:  n - 1 = 2
+    Num of Convolution Layers: L = {40, 100, ...}
+    Num of Convolutions in each Dense Block: m = (L - (n - 1 + Num of first Conv + Num of FC)) / 3
+    (Num of first Conv = 1, Num of FC = 1.)
+    (each Dense Block has an equal number of layers.)
+    m = (L - n -1) / 3
+    """
 
     k = GROWTH_RATE
     n = BLOCKS
-    l = (LAYERS - 4) // 3 // 3
+    # l = (LAYERS - 4) // 3 // 3
+    l = (LAYERS - n - 1) // 3
 
     inputs = keras.Input(shape=input_shape)
 
     outputs = conv2d(16, kernel_size=(3, 3))(inputs)
 
     for i in range(n):
-        outputs = dense_conv(outputs, growth_rate=k, layers=l)
+        outputs = dense_conv(outputs, filters=k, layers=l)
         outputs = transition(outputs, k * l)
         k += GROWTH_RATE
 
@@ -108,27 +121,27 @@ if __name__ == '__main__':
 
     model = build(input_shape=(ROWS, COLS, CHS, ))
 
-    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
-                  loss=keras.losses.categorical_crossentropy,
-                  metrics=['acc'])
-
-    datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
-                                                           height_shift_range=4,
-                                                           fill_mode='constant',
-                                                           horizontal_flip=True)
-
-    datagen.fit(X_train)
-
-    history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE // 10,
-                                  epochs=EPOCHS,
-                                  verbose=2,
-                                  callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
-                                  validation_data=(X_val, Y_val))
-
-    plot(history, metrics=['loss', 'acc'])
-
-    score = model.evaluate(X_test, Y_test, verbose=0)
-
-    print("loss: ", score[0])
-    print("acc:  ", score[1])
+    # model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
+    #               loss=keras.losses.categorical_crossentropy,
+    #               metrics=['acc'])
+    #
+    # datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
+    #                                                        height_shift_range=4,
+    #                                                        fill_mode='constant',
+    #                                                        horizontal_flip=True)
+    #
+    # datagen.fit(X_train)
+    #
+    # history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
+    #                               steps_per_epoch=TRAIN_SIZE // 10,
+    #                               epochs=EPOCHS,
+    #                               verbose=2,
+    #                               callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
+    #                               validation_data=(X_val, Y_val))
+    #
+    # plot(history, metrics=['loss', 'acc'])
+    #
+    # score = model.evaluate(X_test, Y_test, verbose=0)
+    #
+    # print("loss: ", score[0])
+    # print("acc:  ", score[1])

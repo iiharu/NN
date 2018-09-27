@@ -26,7 +26,7 @@ def build(input_shape):
 
 if __name__ == '__main__':
 
-    (X_train, Y_train), (X_test, Y_test) = mnist.load_data(normalize=False, flatten=True, one_hot_label=True)
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data(normalize=True, flatten=True, one_hot_label=True)
 
     model = build((784, ))
 
