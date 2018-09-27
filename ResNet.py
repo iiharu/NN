@@ -143,7 +143,7 @@ if __name__ == '__main__':
     X_train, X_val = np.split(X_train, [45000], axis=0)
     Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
-    model = build(input_shape=(ROWS, COLS, CHS,), n=9)
+    model = build(input_shape=(ROWS, COLS, CHS,), n=7)
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
