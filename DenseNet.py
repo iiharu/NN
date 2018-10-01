@@ -14,13 +14,17 @@ TRAIN_SIZE = 50000
 TEST_SIZE = 10000
 VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
 
-# GROWTH_RATE = 12
-GROWTH_RATE = 16
-LAYERS = 100
+# NETWORK PARAMETER
+GROWTH_RATE = 12
+# GROWTH_RATE = 16
+LAYERS = 40
+USE_BOTTLENECK=False
+REDUCTION_RATE = 1.0
 BLOCKS = 3
+
+# TRAIN PARAMETER
 BATCH_SIZE = 64
 EPOCHS = 32
-USE_BOTTLENECK=False
 
 BN_AXIS = 3 if K.image_data_format() == 'channels_last' else 1
 
@@ -93,7 +97,9 @@ def build(input_shape):
     k = GROWTH_RATE
     n = BLOCKS
     # l = (LAYERS - 4) // 3 // 3
-    l = (LAYERS - n - 1) // (2 * n)
+    l = (LAYERS - n - 1) // n
+    if USE_BOTTLENECK:
+        l = l // 2
 
     inputs = keras.Input(shape=input_shape)
 
@@ -102,7 +108,7 @@ def build(input_shape):
     for i in range(n):
         outputs = dense_block(outputs, l)
         if i < n - 1:
-            outputs = transition_block(outputs)
+            outputs = transition_block(outputs, reduction=REDUCTION_RATE)
     #
     # for i in range(n):
     #     # outputs = dense_conv(outputs, filters=k, layers=l)
