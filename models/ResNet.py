@@ -17,7 +17,16 @@ from tensorflow.keras.layers import GlobalAveragePooling2D
 TODO:
 __init__ のパラメータ調整
 ショートカットコネクションのfilter数, kernel_size, stridesを入力と比較して, なんとかする
+
+layers = 2 (first conv, last dense) + blocks * 2 (not bottleneck)
+layers = 2 (first conv, last dense) + blocks * 3 (not bottleneck)
+blocks がNoneであれば, 均等に割り振る?
+blocks = 2 conv or 3 conv (bottleneck)
+
+cifarはともかく, imagenetは各ブロック数が均等でないので厳しい
+
 """
+
 
 def add(**kwargs):
     return Add(**kwargs)
