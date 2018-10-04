@@ -55,18 +55,18 @@ def global_average_pooling2d(**kwargs):
 
 
 def max_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-    return MaxPooling2D(pool_size=(2, 2),
+    return MaxPooling2D(pool_size=pool_size,
                         strides=strides,
                         padding='same',
                         **kwargs)
 
 
 def relu(**kwargs):
-    return Activation(activations.relu)
+    return Activation(activation=activations.relu, **kwargs)
 
 
 def softmax(axis=-1, **kwargs):
-    return Activation(activations.softmax)
+    return Activation(activation=activations.softmax, **kwargs)
 
 
 class ResNet:
@@ -77,25 +77,11 @@ class ResNet:
     - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
     - [Identity Mappings in Deep Residual Networks] (https://arxiv.org/abs/1603.05027)
     """
-
-    """
-    parameters
-    n?
-    blocks = [3, 3, 3] or [2, 2, 2, 2]
-    layers: num of all weighted layer
-    filters: filter list or initial filter
-
-    blocks is calced with n and layers.
-    complete blocks is needed. but n and layers is not needed.
-    n, layers => one block has (layers - 2) / (2 n) conv (not bottleneck) 
-                               (layers - 2) / (3 n) (bottleneck)
-    """
-    
     def __init__(self, blocks, filters, kernel_size=(3, 3), bottleneck=False):
         if type(blocks) == list:
             self.blocks = blocks
         else:
-            self.blocks = [blocks for i in range(3)]
+            self.blocks = [blocks for _ in range(3)]
         if type(filters) == list:
             self.filters = filters
         else:
@@ -103,11 +89,11 @@ class ResNet:
         self.kernel_size = kernel_size
         self.bottleneck = bottleneck
         self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
+        self.imagenet = False
 
     def residual(self, inputs, filters, sub_sampling=False):
         strides = 2 if sub_sampling else 1
         kernel_size = (1, 1) if self.bottleneck else (3, 3)
-        shortcut_filters = 4 * filters if self.bottleneck else filters
 
         outputs = batch_normalization()(inputs)
         outputs = relu()(outputs)
@@ -137,28 +123,7 @@ class ResNet:
 
         return outputs
 
-
-    # def residual(self, inputs, filters, kernel_size=(3, 3), down_sampling=False):
-    #     strides = 2 if down_sampling else 1
-    #
-    #     outputs = batch_normalization()(inputs)
-    #     outputs = relu()(outputs)
-    #     outputs = conv2d(filters=filters,
-    #                      kernel_size=kernel_size,
-    #                      strides=strides)(outputs)
-    #     if down_sampling:
-    #         inputs = conv2d(filters=filters,
-    #                         kernel_size=(1, 1),
-    #                         strides=strides)(inputs)
-    #     outputs = batch_normalization()(outputs)
-    #     outputs = relu()(outputs)
-    #     outputs = conv2d(filters=filters, kernel_size=kernel_size)(outputs)
-    #     outputs = add()([inputs, outputs])
-    #
-    #     return outputs
-
     def build(self, input_shape, classes=10):
-        self.imagenet = False
         inputs = keras.Input(shape=input_shape)
 
         if self.imagenet:
@@ -196,32 +161,42 @@ class ResNet:
 def ResNetB(blocks, filters, kernel_size=(3, 3)):
     return ResNet(blocks=blocks, filters=filters, kernel_size=kernel_size, bottleneck=True)
 
+
 def ResNet20():
     return ResNet(blocks=3, filters=16)
+
 
 def ResNet32():
     return ResNet(blocks=5, filters=16)
 
+
 def ResNet44():
     return ResNet(blocks=7, filters=16)
+
 
 def ResNet56():
     return ResNet(blocks=9, filters=16)
 
+
 def ResNet110():
     return ResNet(blocks=18, filters=16)
+
 
 def ResNet29():
     return ResNet(blocks=3, filters=16, bottleneck=True)
 
+
 def ResNet47():
     return ResNet(blocks=5, filters=16, bottleneck=True)
+
 
 def ResNet65():
     return ResNet(blocks=7, filters=16, bottleneck=True)
 
+
 def ResNet83():
     return ResNet(blocks=9, filters=16, bottleneck=True)
+
 
 def ResNet164():
     return ResNet(blocks=18, filters=16, bottleneck=True)
