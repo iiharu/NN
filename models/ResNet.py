@@ -143,5 +143,24 @@ class ResNet:
         return model
 
 
+def ResNet20():
+    return ResNet([3, 3, 3], [16, 32, 64])
+
+
+def ResNet32():
+    return ResNet([5, 5, 5], [16, 32, 64])
+
+
+def ResNet44():
+    return ResNet([7, 7, 7], [16, 32, 64])
+
+
+def ResNet56():
+    return ResNet([9, 9, 9], [16, 32, 64])
+
+def ResNet110():
+    return ResNet([18, 18, 18], [16, 32, 64])
+
 if __name__ == '__main__':
-    model = ResNet([3, 3, 3], [16, 32, 64]).build(input_shape=(32, 32, 3), classes=10)
+    resNet = ResNet110()
+    model = resNet.build(input_shape=(32, 32, 3), classes=10)
