@@ -10,6 +10,7 @@ from models import ResNet56
 from models import ResNet110
 
 from utils import plot
+from datasets import cifar10
 
 CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
@@ -22,18 +23,8 @@ BATCH_SIZE = 128
 EPOCHS = 32
 
 
-def prepare():
-    (X_train, Y_train), (X_test, Y_test) = keras.datasets.cifar10.load_data()
-    X_train = X_train.astype(float) / 255
-    X_test = X_test.astype(float) / 255
-    Y_train = keras.utils.to_categorical(Y_train, CLASSES)
-    Y_test = keras.utils.to_categorical(Y_test, CLASSES)
-
-    return (X_train, Y_train), (X_test, Y_test)
-
-
 if __name__ == '__main__':
-    (X_train, Y_train), (X_test, Y_test) = prepare()
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
     X_train, X_val = np.split(X_train, [45000], axis=0)
     Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
