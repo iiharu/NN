@@ -6,6 +6,7 @@ from tensorflow import keras
 from models import ResNet
 from models import ResNet20
 from models import ResNet32
+from models import ResNet44
 from models import ResNet56
 from models import ResNet110
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     X_train, X_val = np.split(X_train, [45000], axis=0)
     Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
-    model = ResNet20().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
+    model = ResNet44().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,

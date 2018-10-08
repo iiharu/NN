@@ -133,22 +133,22 @@ class DenseNet:
         if self.bottleneck and self.compression:
             outputs = conv2d(filters=2 * self.growth_rate,
                              kernel_size=(3, 3),
-                             name=name + "/" + "Conv"
+                             name="Conv"
                              )(inputs)
         else:
-            outputs = conv2d(filters=16, kernel_size=(3, 3), name=name + "/" + "Conv")(inputs)
+            outputs = conv2d(filters=16, kernel_size=(3, 3), name="Conv")(inputs)
 
         for i in range(len(self.blocks)):
             outputs = self.dense_block(outputs,
                                        self.blocks[i],
-                                       name=name + "/" + "Dense" + str(i))
+                                       name="Dense" + str(i))
             if i < len(self.blocks) - 1:
                 outputs = self.transition_block(outputs,
-                                                name=name + "/" + "Transition" + str(i))
+                                                name="Transition" + str(i))
 
-        outputs = global_average_pooling2d(name=name + "/" + "GlobalAvePool")(outputs)
-        outputs = dense(classes, name=name + "/" + "FullyConnect")(outputs)
-        outputs = softmax(name=name + "/" + "SoftMax")(outputs)
+        outputs = global_average_pooling2d(name="GlobalAvePool")(outputs)
+        outputs = dense(classes, name="FullyConnect")(outputs)
+        outputs = softmax(name="SoftMax")(outputs)
 
         model = keras.Model(inputs, outputs)
 
