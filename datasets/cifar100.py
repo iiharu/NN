@@ -17,7 +17,7 @@ def load_data(label_mode="fine", normalize=True, flatten=False, one_hot_label=Tr
         X_train = X_train.astype(float)
         X_test = X_test.astype(float)
         X_train /= 255
-        Y_test /= 255
+        X_test /= 255
 
     if flatten:
         X_train = X_train.reshape((TRAIN_SIZE, ROWS * COLS * CHS))
