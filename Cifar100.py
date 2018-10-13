@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from tensorflow import keras
+from tensorflow.keras import metrics
 
 from models import DenseNet
 from models import DenseNetBC
@@ -29,9 +30,11 @@ if __name__ == '__main__':
                      blocks=3
                      ).build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
 
+    keras.utils.plot_model(model, to_file='model.png')
+
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
-                  metrics=['acc'])
+                  metrics=[metrics.categorical_accuracy, metrics.top_k_categorical_accuracy])
 
     # We follow the simple data augmentation in "Deeply-supervised nets" (http://arxiv.org/abs/1409.5185) for training:
     # 4 pixels are padded on each side,
@@ -45,13 +48,13 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE // 10,
+                                  steps_per_epoch=TRAIN_SIZE // 100,
                                   epochs=EPOCHS,
                                   verbose=2,
                                   # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
                                   validation_data=(X_val, Y_val))
-
-    plot(history, metrics=['loss', 'acc'])
+    print(history.history.keys())
+    plot(history, metrics=['loss', 'categorical_accuracy', 'top_k_categorical_accuracy'])
 
     score = model.evaluate(X_test, Y_test, verbose=0)
 

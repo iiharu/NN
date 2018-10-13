@@ -1,0 +1,15 @@
+{
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": false,
+        "editor.detectIndentation": false,
+    },
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "terminal.integrated.shellArgs.windows": [
+        "/K",
+        "D:\\Users\\iiharu\\Applications\\Miniconda3\\Scripts\\activate.bat",
+        "deeplearning"
+    ],
+    "python.pythonPath": "D:\\Users\\iiharu\\Applications\\Miniconda3\\envs\\deeplearning\\python.exe",
+    "python.linting.pylintPath": "D:\\Users\\iiharu\\Applications\\Miniconda3\\Scripts\\pylint.exe"
+}
