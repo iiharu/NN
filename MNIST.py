@@ -24,6 +24,8 @@ if __name__ == '__main__':
     model = LeNet5().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
 
     keras.utils.plot_model(model, to_file='model.png')
+    print(model.to_json(indent=2))
+  
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
