@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     model = LeNet5().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
 
-    keras.utils.plot_model(model, to_file='model.png')
+    # keras.utils.plot_model(model, to_file='model.png')
     print(model.to_json(indent=2))
   
 
