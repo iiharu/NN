@@ -41,6 +41,3 @@ if __name__ == '__main__':
 
     print("loss: ", score[0])
     print("acc:  ", score[1])
-
-
-
