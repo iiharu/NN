@@ -5,5 +5,6 @@
         "editor.detectIndentation": false,
     },
     "python.pythonPath": "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\envs\\deeplearning\\python.exe",
-    "python.linting.pylintPath": "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\Scripts\\pylint.exe"
+    // "python.linting.pylintPath": "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\Scripts\\pylint.exe",
+    "python.linting.pylintPath": "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\envs\\deeplearning\\Scripts\\pylint.exe"
 }
