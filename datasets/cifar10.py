@@ -27,4 +27,4 @@ def load_data(normalize=True, flatten=False, one_hot_label=True):
         Y_train = to_categorical(Y_train, CLASSES)
         Y_test = to_categorical(Y_test, CLASSES)
 
-    return (X_train, Y_train), (X_test, Y_test)
+	return (X_train, Y_train), (X_test, Y_test)
