@@ -14,6 +14,14 @@ python3 -m venv venv
 pip install numpy matplotlib tensorflow keras
 #+end_src
 
+#+begin_src shell
+# Install Miniconda to $HOME/.local/opt/miniconda3
+# Source $HOME/.local/opt/miniconda3/etc/profile.d/conda.sh
+conda install -n deeplearning python=3.6 tensorflow keras python-graphviz pydot pillow matplotlib
+# To use virtual env.
+conda activate deeplearning
+#+end_src
+
 * Contains
 
 | File       | DataSets | Model               |
