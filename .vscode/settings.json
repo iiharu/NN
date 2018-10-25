@@ -1,4 +1,10 @@
 {
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "terminal.integrated.shellArgs.windows": [
+        "/K", 
+        "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\Scripts\\activate.bat",
+        "deeplearning"
+    ],
     "python.pythonPath": "D:\\Users\\iiharu\\Applications\\Anaconda\\Miniconda3\\envs\\deeplearning\\python.exe",
     "python.linting.pylintEnabled": false
 }

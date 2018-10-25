@@ -13,10 +13,14 @@ from .core import flatten
 # Embeddings
 from .embedding import embedding
 # Convolutional Layers
+from .convolutional import conv1d
 from .convolutional import conv2d
+from .convolutional import cropping1d
 from .convolutional import cropping2d
 from .convolutional import transposed_conv2d
+from .convolutional import up_sampling1d
 from .convolutional import up_sampling2d
+from .convolutional import zero_padding1d
 from .convolutional import zero_padding2d
 # Normalization Layers
 from .normalization import batch_normalization
