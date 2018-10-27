@@ -32,28 +32,34 @@ class GoogLeNet:
 	GoogLeNet with Inception v1
 	"""
 
-	def __init__(self):
-
 	def inception(self, inputs, filters):
+		outputs0 = inputs
 		outputs1 = inputs
 		outputs2 = inputs
 		outputs3 = inputs
-		outputs4 = inputs
+
+		outputs0 = conv2d(filters=filters, kernel_size=(1, 1))(outputs0)
 
 		outputs1 = conv2d(filters=filters, kernel_size=(1, 1))(outputs1)
+		outputs1 = conv2d(filters=filters, kernel_size=(3, 3))(outputs1)
 
 		outputs2 = conv2d(filters=filters, kernel_size=(1, 1))(outputs2)
-		outputs2 = conv2d(filters=filters, kernel_size=(3, 3))(outputs2)
+		outputs2 = conv2d(filters=filters, kernel_size=(5, 5))(outputs2)
 
-		outputs3 = conv2d(filters=filters, kernel_size=(1, 1))(outputs3)
-		outputs3 = conv2d(filters=filters, kernel_size=(5, 5))(outputs3)
+		outputs3 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs3)
+		outputs3 = conv2d(filters=filters, kerenl_size=(1, 1))(outputs3)
 
-		outputs4 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs4)
-		outputs4 = conv2d(filters=filters, kerenl_size=(1, 1))(outputs4)
-
-		outputs = concat()([outputs1, output2, outputs3, outputs4])
+		outputs = concat()([outputs0, outputs1, output2, outputs3])
 
 		return outputs
 		
 	
 	def build(self, input_shape):
+        inputs = keras.Input(input_shape)
+        outputs = inputs
+        model = keras.model(inputs, outputs)
+
+        model.summary()
+
+        return model
+
