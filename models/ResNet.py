@@ -2,34 +2,12 @@
 
 from tensorflow import keras
 from tensorflow.keras import activations
-from tensorflow.keras import initializers
-from tensorflow.keras import regularizers
-
 from tensorflow.keras import backend as K
+from tensorflow.keras import initializers, regularizers
+from tensorflow.keras.layers import Conv2D, Dense
 
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Add
-from tensorflow.keras.layers import AveragePooling2D
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import GlobalAveragePooling2D
-from tensorflow.keras.layers import MaxPooling2D
-
-
-def add(**kwargs):
-	return Add(**kwargs)
-
-
-def average_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return AveragePooling2D(pool_size=pool_size,
-							strides=strides,
-							padding='same',
-							**kwargs)
-
-
-def batch_normalization(axis=-1, **kwargs):
-	return BatchNormalization(axis=axis, **kwargs)
+from __layers__ import (add, average_pooling2d, batch_normalization,
+                        global_average_pooling2d, max_pooling2d, relu, softmax)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
@@ -48,25 +26,6 @@ def dense(units, **kwargs):
 				 kernel_regularizer=regularizers.l2(0.0001),
 				 bias_regularizer=regularizers.l2(0.0001),
 				 **kwargs)
-
-
-def global_average_pooling2d(**kwargs):
-	return GlobalAveragePooling2D(**kwargs)
-
-
-def max_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return MaxPooling2D(pool_size=pool_size,
-						strides=strides,
-						padding='same',
-						**kwargs)
-
-
-def relu(**kwargs):
-	return Activation(activation=activations.relu, **kwargs)
-
-
-def softmax(axis=-1, **kwargs):
-	return Activation(activation=activations.softmax, **kwargs)
 
 
 class ResNet:

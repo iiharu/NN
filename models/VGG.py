@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from tensorflow import keras
-
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import MaxPooling2D
-
 from tensorflow.keras import activations
+from tensorflow.keras.layers import Conv2D, Dense
+
+from __layers__ import flatten, max_pooling2d, relu, softmax
 
 
 def conv2d(filters, kernel_size, strides=1,
@@ -37,27 +33,6 @@ def dense(units, activation=None, use_bias=True,
 				 activity_regularizer=activity_regularizer,
 				 kernel_constraint=kernel_constraint, bias_constraint=bias_constraint,
 				 **kwargs)
-
-
-def flatten(**kwargs):
-	return Flatten(**kwargs)
-
-
-def max_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return MaxPooling2D(pool_size=pool_size,
-						strides=strides,
-						padding='same',
-						**kwargs)
-
-
-def relu(max_value=None, **kwargs):
-	# return keras.layers.ReLU(max_value=max_value, **kwargs)
-	return Activation(activation=activations.relu, **kwargs)
-
-
-def softmax(axis=-1, **kwargs):
-	# return keras.layers.Softmax(axis=axis, **kwargs)
-	return Activation(activation=activations.softmax, **kwargs)
 
 
 class VGG:

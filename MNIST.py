@@ -6,7 +6,7 @@ from tensorflow import keras
 from models import LeNet5
 
 from utils import plot
-from  datasets import mnist
+from datasets import mnist
 
 CLASSES = 10
 ROWS, COLS, CHS = 28, 28, 1

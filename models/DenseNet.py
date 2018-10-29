@@ -1,32 +1,14 @@
 # -*- coding: utf-8 -*-
 
+
 from tensorflow import keras
 from tensorflow.keras import activations
-from tensorflow.keras import initializers
-from tensorflow.keras import regularizers
 from tensorflow.keras import backend as K
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import AveragePooling2D
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Concatenate
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.keras import initializers, regularizers
+from tensorflow.keras.layers import Conv2D, Dense
 
-
-def average_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return AveragePooling2D(pool_size=pool_size,
-							strides=strides,
-							padding='same',
-							**kwargs)
-
-
-def batch_normalization(axis=-1, **kwargs):
-	return BatchNormalization(axis=axis, **kwargs)
-
-
-def concat(axis=-1, **kwargs):
-	return Concatenate(axis=axis, **kwargs)
+from __layers__ import (average_pooling2d, batch_normalization, concat,
+                        global_average_pooling2d, relu, softmax)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
@@ -45,18 +27,6 @@ def dense(units, **kwargs):
 				 kernel_regularizer=regularizers.l2(0.0001),
 				 bias_regularizer=regularizers.l2(0.0001),
 				 **kwargs)
-
-
-def global_average_pooling2d(**kwargs):
-	return GlobalAveragePooling2D(**kwargs)
-
-
-def relu(**kwargs):
-	return Activation(activations.relu, **kwargs)
-
-
-def softmax(**kwargs):
-	return Activation(activations.softmax, **kwargs)
 
 
 class DenseNet:
@@ -190,5 +160,5 @@ def DenseNetBC(layers, growth_rate, blocks, reduction_rate=0.5):
 #	 return DenseNetBC(layers=190, growth_rate=40, blocks=3)
 #
 #
-# if __name__ == '__main__':
-#	 model = DenseNet(layers=40, growth_rate=12, blocks=3).build(input_shape=(32, 32, 3), classes=10)
+if __name__ == '__main__':
+	model = DenseNet(layers=40, growth_rate=12, blocks=3).build(input_shape=(32, 32, 3), classes=10)

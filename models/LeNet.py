@@ -2,61 +2,9 @@
 
 from tensorflow import keras
 
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import MaxPooling2D
-
-from tensorflow.keras import activations
-
-
-def conv2d(filters, kernel_size, strides=1,
-		   activation=None, use_bias=True,
-		   kernel_initializer='glorot_uniform', bias_initializer='zeros',
-		   kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
-		   kernel_constraint=None, bias_constraint=None,
-		   **kwargs):
-	return Conv2D(filters, kernel_size, strides=strides, padding='same',
-				  activation=activation, use_bias=use_bias,
-				  kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
-				  kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer,
-				  kernel_constraint=kernel_constraint, bias_constraint=bias_constraint,
-				  **kwargs)
-
-
-def dense(units, activation=None, use_bias=True,
-		  kernel_initializer='glorot_uniform', bias_initializer='zeros',
-		  kernel_regularizer=None, bias_regularizer=None,
-		  activity_regularizer=None,
-		  kernel_constraint=None, bias_constraint=None,
-		  **kwargs):
-	return Dense(units, activation=activation, use_bias=use_bias,
-				 kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
-				 kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer,
-				 activity_regularizer=activity_regularizer,
-				 kernel_constraint=kernel_constraint, bias_constraint=bias_constraint,
-				 **kwargs)
-
-
-def flatten(**kwargs):
-	return Flatten(**kwargs)
-
-
-def max_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return MaxPooling2D(pool_size=pool_size,
-						strides=strides,
-						padding='same',
-						**kwargs)
-
-
-def sigmoid(**kwargs):
-	return Activation(activation=activations.sigmoid, **kwargs)
-
-
-def softmax(axis=-1, **kwargs):
-	return Activation(activation=activations.softmax, **kwargs)
-
+from __layers__ import (concat, conv2d, dense, flatten, max_pooling2d, sigmoid,
+                        softmax)
+	
 
 class LeNet5:
 
