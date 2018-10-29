@@ -8,7 +8,6 @@ from models import ResNet20
 from models import ResNet32
 from models import ResNet44
 from models import ResNet56
-from models import ResNet110
 
 from utils import plot
 from datasets import cifar10
