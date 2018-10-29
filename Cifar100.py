@@ -3,11 +3,9 @@ import numpy as np
 from tensorflow import keras
 from tensorflow.keras import metrics
 
-from models import DenseNet
-from models import DenseNetBC
-
-from utils import plot
 from datasets import cifar100
+from models import DenseNet, DenseNetBC
+from utils import plot
 
 CLASSES = 100
 ROWS, COLS, CHS = 32, 32, 3
