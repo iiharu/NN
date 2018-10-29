@@ -22,7 +22,7 @@ EPOCHS = 32
 
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = cifar100.load_data()
-    # pylint: diable=E0632
+    # pylint: disable=E0632
     X_train, X_val = np.split(X_train, [45000], axis=0)
     Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
