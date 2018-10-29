@@ -12,4 +12,3 @@ from .ResNet import ResNet56
 from .ResNet import ResNet110
 from .LeNet import LeNet
 from .LeNet import LeNet5
-
