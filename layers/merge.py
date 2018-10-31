@@ -5,8 +5,8 @@ from tensorflow.keras.layers import Concatenate
 
 
 def add(**kwargs):
-	return Add(**kwargs)
+    return Add(**kwargs)
 
 
 def concat(axis=-1, **kwargs):
-	return Concatenate(axis=axis, **kwargs)
+    return Concatenate(axis=axis, **kwargs)

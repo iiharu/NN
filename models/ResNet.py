@@ -2,201 +2,173 @@
 
 from tensorflow import keras
 from tensorflow.keras import activations
-from tensorflow.keras import initializers
-from tensorflow.keras import regularizers
-
 from tensorflow.keras import backend as K
+from tensorflow.keras import initializers, regularizers
+from tensorflow.keras.layers import Conv2D, Dense
 
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Add
-from tensorflow.keras.layers import AveragePooling2D
-from tensorflow.keras.layers import BatchNormalization
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import GlobalAveragePooling2D
-from tensorflow.keras.layers import MaxPooling2D
-
-
-def add(**kwargs):
-	return Add(**kwargs)
-
-
-def average_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return AveragePooling2D(pool_size=pool_size,
-							strides=strides,
-							padding='same',
-							**kwargs)
-
-
-def batch_normalization(axis=-1, **kwargs):
-	return BatchNormalization(axis=axis, **kwargs)
+from .__layers__ import (add, average_pooling2d, batch_normalization, flatten,
+                         global_average_pooling2d, max_pooling2d, relu,
+                         softmax)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
-	return Conv2D(filters,
-				  kernel_size,
-				  strides=strides,
-				  padding='same',
-				  use_bias=False,
-				  kernel_initializer=initializers.he_normal(),
-				  kernel_regularizer=regularizers.l2(0.0001),
-				  **kwargs)
+    return Conv2D(filters,
+                  kernel_size,
+                  strides=strides,
+                  padding='same',
+                  use_bias=False,
+                  kernel_initializer=initializers.he_normal(),
+                  kernel_regularizer=regularizers.l2(0.0001),
+                  **kwargs)
 
 
 def dense(units, **kwargs):
-	return Dense(units,
-				 kernel_regularizer=regularizers.l2(0.0001),
-				 bias_regularizer=regularizers.l2(0.0001),
-				 **kwargs)
+    return Dense(units,
+                 kernel_regularizer=regularizers.l2(0.0001),
+                 bias_regularizer=regularizers.l2(0.0001),
+                 **kwargs)
 
 
-def global_average_pooling2d(**kwargs):
-	return GlobalAveragePooling2D(**kwargs)
+def residual(inputs, filters, bottleneck=False, sub_sampling=False):
+    strides = 2 if sub_sampling else 1
+    kernel_size = (1, 1) if bottleneck else (3, 3)
 
+    outputs = batch_normalization()(inputs)
+    outputs = relu()(outputs)
+    outputs = conv2d(filters=filters, kernel_size=kernel_size,
+                     strides=strides)(outputs)
+    if sub_sampling or bottleneck:
+        inputs = conv2d(filters=4 * filters if bottleneck else filters,
+                        kernel_size=(1, 1),
+                        strides=strides)(inputs)
+    outputs = batch_normalization()(outputs)
+    outputs = relu()(outputs)
+    outputs = conv2d(filters=filters, kernel_size=(3, 3), strides=1)(outputs)
+    if bottleneck:
+        outputs = batch_normalization()(outputs)
+        outputs = relu()(outputs)
+        outputs = conv2d(filters=4*filters,
+                         kernel_size=kernel_size, strides=1)(outputs)
+    outputs = add()([inputs, outputs])
 
-def max_pooling2d(pool_size=(2, 2), strides=None, **kwargs):
-	return MaxPooling2D(pool_size=pool_size,
-						strides=strides,
-						padding='same',
-						**kwargs)
-
-
-def relu(**kwargs):
-	return Activation(activation=activations.relu, **kwargs)
-
-
-def softmax(axis=-1, **kwargs):
-	return Activation(activation=activations.softmax, **kwargs)
+    return outputs
 
 
 class ResNet:
-	"""
-	Residual Network for Cifar10
-	
-	References
-	- [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
-	- [Identity Mappings in Deep Residual Networks] (https://arxiv.org/abs/1603.05027)
-	"""
-	def __init__(self, blocks, filters, kernel_size=(3, 3), bottleneck=False):
-		if type(blocks) == list:
-			self.blocks = blocks
-		else:
-			self.blocks = [blocks for _ in range(3)]
-		if type(filters) == list:
-			self.filters = filters
-		else:
-			self.filters = [pow(2, i) * filters for i in range(len(self.blocks))]
-		self.kernel_size = kernel_size
-		self.bottleneck = bottleneck
-		self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
-		self.imagenet = False
 
-	def residual(self, inputs, filters, sub_sampling=False):
-		strides = 2 if sub_sampling else 1
-		kernel_size = (1, 1) if self.bottleneck else (3, 3)
+    """
+    Residual Network
 
-		outputs = batch_normalization()(inputs)
-		outputs = relu()(outputs)
-		outputs = conv2d(filters=filters,
-						 kernel_size=kernel_size,
-						 strides=strides
-						 )(outputs)
-		if sub_sampling or self.bottleneck:
-			inputs = conv2d(filters=4 * filters if self.bottleneck else filters,
-							kernel_size=(1, 1),
-							strides=strides
-							)(inputs)
-		outputs = batch_normalization()(outputs)
-		outputs = relu()(outputs)
-		outputs = conv2d(filters=filters,
-						 kernel_size=(3, 3),
-						 strides=1
-						 )(outputs)
-		if self.bottleneck:
-			outputs = batch_normalization()(outputs)
-			outputs = relu()(outputs)
-			outputs = conv2d(filters=4*filters,
-							 kernel_size=kernel_size,
-							 strides=1
-							 )(outputs)
-		outputs = add()([inputs, outputs])
+    Parameter:
+    - blocks: num of blocks as list
+    - filters: num of filter map
+    - bottleneck: If True use bottleneck architecture
+    - top_layers: top layers for network
+        for ImageNet: top_layers=[conv2d(filters=64, kernel_size=(7, 7), strides=2)] (default)
+        for Cifar: top_layers=[conv2d(filters=16, kernel_size=(3, 3))]
+    - down_layers: down layers for network
+        for ImageNet: down_layers=[average_pooling2d(pool_size=(2, 2)), flatten()])
+        for Cifar: down_layers=[global_average_pooling2d()]
 
-		return outputs
+    References
+    - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
+    - [Identity Mappings in Deep Residual Networks] (https://arxiv.org/abs/1603.05027)
+    """
 
-	def build(self, input_shape, classes=10):
-		inputs = keras.Input(shape=input_shape)
+    def __init__(self, blocks, filters, bottleneck=False,
+                 top_layers=[
+                     conv2d(filters=64, kernel_size=(7, 7), strides=2)],
+                 down_layers=[average_pooling2d(pool_size=(2, 2)), flatten()]):
+        self.blocks = blocks
+        self.filters = filters
+        self.bottleneck = bottleneck
+        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
+        self.top_layers = top_layers
+        self.down_layer = down_layers
 
-		if self.imagenet:
-			outputs = conv2d(filters=self.filters[0],
-							 kernel_size=(7, 7),
-							 strides=2
-							 )(inputs)
-			outputs = max_pooling2d(pool_size=(3, 3), strides=2)(outputs)
-		else:
-			outputs = conv2d(self.filters[0],
-							 kernel_size=self.kernel_size
-							 )(inputs)
+    def build(self, input_shape, classes=1000):
+        inputs = keras.Input(shape=input_shape)
 
-		for b in range(len(self.blocks)):
-			for l in range(self.blocks[b]):
-				sub_sampling = True if b != 0 and l == 0 else False
-				outputs = self.residual(outputs,
-										self.filters[b],
-										sub_sampling=sub_sampling)
+        outputs = inputs
+        for layer in self.top_layers:
+            outputs = layer(outputs)
 
-		if self.imagenet:
-			outputs = average_pooling2d(pool_size=(2, 2))(outputs)
-		else:
-			outputs = global_average_pooling2d()(outputs)
-		outputs = dense(classes)(outputs)
-		outputs = softmax()(outputs)
+        for b in range(len(self.blocks)):
+            for l in range(self.blocks[b]):
+                sub_sampling = True if b != 0 and l == 0 else False
+                outputs = residual(outputs, self.filters[b],
+                                   bottleneck=self.bottleneck, sub_sampling=sub_sampling)
 
-		model = keras.Model(inputs, outputs)
+        for layer in self.down_layer:
+            outputs = layer(outputs)
+        outputs = dense(classes)(outputs)
+        outputs = softmax()(outputs)
 
-		model.summary()
+        model = keras.Model(inputs, outputs)
 
-		return model
+        model.summary()
+
+        return model
 
 
-def ResNetB(blocks, filters, kernel_size=(3, 3)):
-	return ResNet(blocks=blocks, filters=filters, kernel_size=kernel_size, bottleneck=True)
+def ResNet18():
+    """
+    ResNet for ImageNet with 18 layers.
+    """
+    return ResNet(blocks=[2, 2, 2, 2], filters=[64, 128, 256, 512])
+
+
+def ResNet34():
+    """
+    ResNet for ImageNet with 34 layers.
+    """
+    return ResNet(blocks=[3, 4,  6, 3], filters=[64, 128, 256, 512])
+
+
+def ResNet50():
+    """
+    ResNet for ImageNet with 50 layers.
+    """
+    return ResNet(blocks=[3, 4, 6, 3], filters=[64, 128, 256, 512], bottleneck=True)
+
+
+def ResNet101():
+    """
+    ResNet for ImageNet with 101 layers.
+    """
+    return ResNet(blocks=[3, 4, 23,  3], filters=[64, 128, 256, 512], bottleneck=True)
+
+
+def ResNet152():
+    """
+    ResNet for ImageNet with 152 layers.
+    """
+    return ResNet(blocks=[3, 4, 36, 3], filters=[64, 128, 256, 512], bottleneck=True)
 
 
 def ResNet20():
-	return ResNet(blocks=3, filters=16)
+    """
+    ResNet for Cifar10/100 with 20 layers.
+    """
+    return ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
 
 
 def ResNet32():
-	return ResNet(blocks=5, filters=16)
+    """
+    ResNet for Cifar10/100 with 32 layers.
+    """
+    return ResNet(blocks=[5, 5, 5], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
 
 
 def ResNet44():
-	return ResNet(blocks=7, filters=16)
+    """
+    ResNet for Cifar10/100 with 44 layers.
+    """
+    return ResNet(blocks=[7, 7, 7], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
 
 
 def ResNet56():
-	return ResNet(blocks=9, filters=16)
-
-
-def ResNet110():
-	return ResNet(blocks=18, filters=16)
-
-
-def ResNet29():
-	return ResNet(blocks=3, filters=16, bottleneck=True)
-
-
-def ResNet47():
-	return ResNet(blocks=5, filters=16, bottleneck=True)
-
-
-def ResNet65():
-	return ResNet(blocks=7, filters=16, bottleneck=True)
-
-
-def ResNet83():
-	return ResNet(blocks=9, filters=16, bottleneck=True)
-
-
-def ResNet164():
-	return ResNet(blocks=18, filters=16, bottleneck=True)
+    """
+    ResNet for Cifar10/100 with 56 layers.
+    """
+    return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
