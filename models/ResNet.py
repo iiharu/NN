@@ -63,12 +63,12 @@ class ResNet:
     - blocks: num of blocks as list
     - filters: num of filter map
     - bottleneck: If True use bottleneck architecture
-    - top_layers: top layers for network
-        for ImageNet: top_layers=[conv2d(filters=64, kernel_size=(7, 7), strides=2)] (default)
-        for Cifar: top_layers=[conv2d(filters=16, kernel_size=(3, 3))]
-    - down_layers: down layers for network
-        for ImageNet: down_layers=[average_pooling2d(pool_size=(2, 2)), flatten()])
-        for Cifar: down_layers=[global_average_pooling2d()]
+    - input_layers: input layers for network
+        for ImageNet: input_layers=[conv2d(filters=64, kernel_size=(7, 7), strides=2)] (default)
+        for Cifar: input_layers=[conv2d(filters=16, kernel_size=(3, 3))]
+    - output_layers: output layers for network
+        for ImageNet: output_layers=[average_pooling2d(pool_size=(2, 2)), flatten()])
+        for Cifar: output_layers=[global_average_pooling2d()]
 
     References
     - [Deep Residual Learning for Image Recognition] (http://arxiv.org/abs/1512.03385)
@@ -76,21 +76,24 @@ class ResNet:
     """
 
     def __init__(self, blocks, filters, bottleneck=False,
-                 top_layers=[
-                     conv2d(filters=64, kernel_size=(7, 7), strides=2)],
-                 down_layers=[average_pooling2d(pool_size=(2, 2)), flatten()]):
+                 input_layers=[
+                     conv2d(filters=64, kernel_size=(7, 7), strides=2),
+                     batch_normalization(),
+                     relu()
+                 ],
+                 output_layers=[average_pooling2d(pool_size=(2, 2)), flatten()]):
         self.blocks = blocks
         self.filters = filters
         self.bottleneck = bottleneck
         self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
-        self.top_layers = top_layers
-        self.down_layer = down_layers
+        self.input_layers = input_layers
+        self.output_layer = output_layers
 
     def build(self, input_shape, classes=1000):
         inputs = keras.Input(shape=input_shape)
 
         outputs = inputs
-        for layer in self.top_layers:
+        for layer in self.input_layers:
             outputs = layer(outputs)
 
         for b in range(len(self.blocks)):
@@ -99,8 +102,9 @@ class ResNet:
                 outputs = residual(outputs, self.filters[b],
                                    bottleneck=self.bottleneck, sub_sampling=sub_sampling)
 
-        for layer in self.down_layer:
+        for layer in self.output_layer:
             outputs = layer(outputs)
+
         outputs = dense(classes)(outputs)
         outputs = softmax()(outputs)
 
@@ -136,7 +140,7 @@ def ResNet101():
     """
     ResNet for ImageNet with 101 layers.
     """
-    return ResNet(blocks=[3, 4, 23,  3], filters=[64, 128, 256, 512], bottleneck=True)
+    return ResNet(blocks=[3, 4, 23, 3], filters=[64, 128, 256, 512], bottleneck=True)
 
 
 def ResNet152():
@@ -150,25 +154,25 @@ def ResNet20():
     """
     ResNet for Cifar10/100 with 20 layers.
     """
-    return ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
+    return ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
 
 
 def ResNet32():
     """
     ResNet for Cifar10/100 with 32 layers.
     """
-    return ResNet(blocks=[5, 5, 5], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
+    return ResNet(blocks=[5, 5, 5], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
 
 
 def ResNet44():
     """
     ResNet for Cifar10/100 with 44 layers.
     """
-    return ResNet(blocks=[7, 7, 7], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
+    return ResNet(blocks=[7, 7, 7], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
 
 
 def ResNet56():
     """
     ResNet for Cifar10/100 with 56 layers.
     """
-    return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], top_layers=[conv2d(filters=16, kernel_size=(3, 3))], down_layers=[global_average_pooling2d()])
+    return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])

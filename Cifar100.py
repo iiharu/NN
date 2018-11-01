@@ -4,7 +4,8 @@ from tensorflow import keras
 from tensorflow.keras import metrics
 
 from datasets import cifar100
-from models import DenseNet, DenseNetBC
+# from models import DenseNet, DenseNetBC
+from models import ResNet20, ResNet32, ResNet44, ResNet56
 from utils import plot
 
 CLASSES = 100
@@ -21,13 +22,14 @@ EPOCHS = 32
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = cifar100.load_data()
     # pylint: disable=E0632
-    X_train, X_val = np.split(X_train, [45000], axis=0)
-    Y_train, Y_val = np.split(Y_train, [45000], axis=0)
+    # X_train, X_val = np.split(X_train, [45000], axis=0)
+    # Y_train, Y_val = np.split(Y_train, [45000], axis=0)
 
-    model = DenseNet(layers=40,
-                     growth_rate=12,
-                     blocks=3
-                     ).build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
+    # model = DenseNet(layers=40,
+    #                  growth_rate=12,
+    #                  blocks=3
+    #                 ).build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
+    model = ResNet20().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
 
     keras.utils.plot_model(model, to_file='model.png')
 
@@ -47,11 +49,11 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE // 100,
+                                  steps_per_epoch=TRAIN_SIZE // 1,
                                   epochs=EPOCHS,
                                   verbose=2,
                                   # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
-                                  validation_data=(X_val, Y_val))
+                                  validation_data=(X_test, Y_test))
     print(history.history.keys())
     plot(history, metrics=[
          'loss', 'categorical_accuracy', 'top_k_categorical_accuracy'])

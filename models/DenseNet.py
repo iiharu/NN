@@ -70,68 +70,57 @@ class DenseNet:
         self.batch_normalization_axis = - \
             1 if K.image_data_format() == 'channels_last' else 1
 
-    def conv_block(self, inputs, name):
-        outputs = batch_normalization(name=name + "/" + "BN")(inputs)
+    def conv_block(self, inputs):
+        outputs = batch_normalization()(inputs)
         if self.bottleneck:
-            outputs = relu(name=name + "/" + "ReLu")(outputs)
+            outputs = relu()(outputs)
             outputs = conv2d(filters=4 * self.growth_rate,
-                             kernel_size=(1, 1),
-                             name=name + "/" + "Conv")(outputs)
-            outputs = batch_normalization(name=name + "/" + "BN")(outputs)
-        outputs = relu(name=name + "/" + "ReLu")(outputs)
+                             kernel_size=(1, 1))(outputs)
+            outputs = batch_normalization()(outputs)
+        outputs = relu()(outputs)
         outputs = conv2d(filters=self.growth_rate,
-                         kernel_size=(3, 3),
-                         name=name + "/" + "Conv")(outputs)
-        outputs = concat(name=name + "/" + "Concat")([inputs, outputs])
+                         kernel_size=(3, 3))(outputs)
+        outputs = concat()([inputs, outputs])
 
         return outputs
 
-    def dense_block(self, inputs, convs, name):
-        for i in range(convs):
-            inputs = self.conv_block(inputs, name=name + "/" + "Conv" + str(i))
+    def dense_block(self, inputs, convs):
+        for _ in range(convs):
+            inputs = self.conv_block(inputs)
         return inputs
 
-    def transition_block(self, inputs, name):
+    def transition_block(self, inputs):
         filters = K.int_shape(inputs)[self.batch_normalization_axis]
         if self.compression:
             filters = int(filters * (1 - self.reduction_rate))
 
-        outputs = batch_normalization(name=name + "/" + "BN")(inputs)
-        outputs = relu(name=name + "/" + "ReLU")(outputs)
+        outputs = batch_normalization()(inputs)
+        outputs = relu()(outputs)
         outputs = conv2d(filters=filters,
-                         kernel_size=(1, 1),
-                         name=name + "/" + "Conv"
-                         )(outputs)
+                         kernel_size=(1, 1))(outputs)
         outputs = average_pooling2d(pool_size=(2, 2),
-                                    strides=2,
-                                    name=name + "/" + "AvePool"
-                                    )(outputs)
+                                    strides=2)(outputs)
 
         return outputs
 
-    def build(self, input_shape, classes, name="DenseNet"):
-        inputs = keras.Input(shape=input_shape, name=name + "/" + "Input")
+    def build(self, input_shape, classes):
+        inputs = keras.Input(shape=input_shape)
 
         if self.bottleneck and self.compression:
             outputs = conv2d(filters=2 * self.growth_rate,
-                             kernel_size=(3, 3),
-                             name="Conv"
-                             )(inputs)
+                             kernel_size=(3, 3))(inputs)
         else:
-            outputs = conv2d(filters=16, kernel_size=(
-                3, 3), name="Conv")(inputs)
+            outputs = conv2d(filters=16, kernel_size=(3, 3))(inputs)
 
         for i in range(len(self.blocks)):
             outputs = self.dense_block(outputs,
-                                       self.blocks[i],
-                                       name="Dense" + str(i))
+                                       self.blocks[i])
             if i < len(self.blocks) - 1:
-                outputs = self.transition_block(outputs,
-                                                name="Transition" + str(i))
+                outputs = self.transition_block(outputs)
 
-        outputs = global_average_pooling2d(name="GlobalAvePool")(outputs)
-        outputs = dense(classes, name="FullyConnect")(outputs)
-        outputs = softmax(name="SoftMax")(outputs)
+        outputs = global_average_pooling2d()(outputs)
+        outputs = dense(classes)(outputs)
+        outputs = softmax()(outputs)
 
         model = keras.Model(inputs, outputs)
 
@@ -173,6 +162,17 @@ def DenseNetBC(layers, growth_rate, blocks, reduction_rate=0.5):
 #	 return DenseNetBC(layers=190, growth_rate=40, blocks=3)
 #
 #
+
+# def DenseNet121():
+#   return DenseNet(blocks=[6, 12, 24, 16], growth_rate=32, bottleneck=True)
+# def DenseNet169():
+#   return DenseNet(blocks=[6, 12, 32, 32], growth_rate=32)
+# def DenseNet201():
+#   return DenseNet(blocks=[6, 12, 48, 32], growth_rate=32)
+# def DenseNet264():
+#   return DenseNet(blocks=[6, 12, 64, 48], growth_rate=32)
+
+
 if __name__ == '__main__':
     model = DenseNet(layers=40, growth_rate=12, blocks=3).build(
         input_shape=(32, 32, 3), classes=10)

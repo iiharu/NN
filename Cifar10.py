@@ -2,15 +2,11 @@
 
 import numpy as np
 from tensorflow import keras
+from tensorflow.keras import losses, metrics, optimizers
 
-from models import ResNet
-from models import ResNet20
-from models import ResNet32
-from models import ResNet44
-from models import ResNet56
-
-from utils import plot
 from datasets import cifar10
+from models import ResNet, ResNet20, ResNet32, ResNet44, ResNet56
+from utils import plot
 
 CLASSES = 10
 ROWS, COLS, CHS = 32, 32, 3
@@ -21,17 +17,16 @@ VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
 VALIDATION_SIZE = 5000
 
 BATCH_SIZE = 128
-EPOCHS = 32
-
+EPOCHS = 16
 
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
-    model = ResNet44().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
+    model = ResNet20().build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
 
-    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
-                  loss=keras.losses.categorical_crossentropy,
-                  metrics=['acc'])
+    model.compile(optimizer=optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
+                  loss=losses.categorical_crossentropy,
+                  metrics=[metrics.categorical_accuracy, metrics.top_k_categorical_accuracy])
 
     # We follow the simple data augmentation in "Deeply-supervised nets" (http://arxiv.org/abs/1409.5185) for training:
     # 4 pixels are padded on each side,
@@ -45,13 +40,14 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE // 10,
+                                  steps_per_epoch=TRAIN_SIZE // 1,
                                   epochs=EPOCHS,
                                   verbose=2,
                                   # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
                                   validation_data=(X_test, Y_test))
 
-    plot(history, metrics=['loss', 'acc'])
+    plot(history, metrics=[
+         'loss', 'categorical_accuracy', 'top_k_categorical_accuracy'])
 
     score = model.evaluate(X_test, Y_test, verbose=0)
 
