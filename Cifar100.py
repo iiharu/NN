@@ -29,7 +29,7 @@ if __name__ == '__main__':
     #                  growth_rate=12,
     #                  blocks=3
     #                 ).build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
-    model = ResNet20().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
+    model = ResNet56().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
 
     keras.utils.plot_model(model, to_file='model.png')
 
