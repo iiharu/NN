@@ -6,7 +6,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras import initializers, regularizers
 from tensorflow.keras.layers import Conv2D, Dense
 
-from .__layers__ import (add, average_pooling2d, batch_normalization, flatten,
+from .__layers__ import (add, average_pooling2d, batch_normalization, dropout, flatten,
                          global_average_pooling2d, max_pooling2d, relu,
                          softmax)
 
@@ -117,84 +117,6 @@ class ResNet:
         return model
 
 
-class WideResNet:
-
-    """
-    Wide Residual Networks
-
-    Parameter:
-
-    References:
-    - [Wide Residual Networks] (https://arxiv.org/abs/1605.07146)
-    """
-
-    def __init__(self, layers, widening, deeping=2):
-        self.layers = layers  # n: num of convlutions
-        self.widening = widening  # k: widening factor
-        self.deeping = deeping  # l: deeping factor
-        # kernel_size in residual block
-        self.block_type = [(3, 3)] * self.deeping
-        # d: num of residual blocks in conv_i
-        self.blocks = (layers - 4) // (3 * self.deeping)
-
-        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1  # feature map axis
-
-    def conv(self, inputs, filters, kernel_size, strides=1):
-        inputs = batch_normalization()(inputs)
-        inputs = relu()(inputs)
-        inputs = conv2d(filters=filters, kernel_size=kernel_size,
-                        strides=strides)(inputs)
-        return inputs
-
-    def residual(self, inputs, filters, down_sampling=False):
-        strides = 2 if down_sampling else 1
-        for i, block in enumerate(self.block_type):
-            if i == 0:
-                outputs = self.conv(inputs, filters=filters,
-                                    kernel_size=block, strides=strides)
-                if K.int_shape(outputs)[self.bn_axis] != K.int_shape(inputs)[self.bn_axis] or down_sampling:
-                    inputs = self.conv(
-                        inputs, filters=filters, kernel_size=(1, 1), strides=strides)
-            else:
-                outputs = self.conv(inputs, filters=filters, kernel_size=block)
-
-        outputs = add()([inputs, outputs])
-
-        return outputs
-
-    def build(self, input_shape, classes=10):
-
-        filters = 16
-
-        inputs = keras.Input(shape=input_shape)
-
-        outputs = batch_normalization()(inputs)
-        outputs = relu()(outputs)
-        outputs = conv2d(filters=filters, kernel_size=(3, 3))(outputs)
-
-        filters = filters * self.widening
-
-        for i in range(3):
-            for j in range(self.blocks):
-                down_sampling = True if (i > 0 and j == 0) else False
-                outputs = self.residual(
-                    outputs, filters=filters, down_sampling=down_sampling)
-
-            filters = 2 * filters
-
-        outputs = batch_normalization()(outputs)
-        outputs = relu()(outputs)
-        outputs = average_pooling2d(pool_size=(8, 8))(outputs)
-        outputs = dense(10)(outputs)
-        outputs = softmax()(outputs)
-
-        model = keras.Model(inputs, outputs)
-
-        model.summary()
-
-        return model
-
-
 def ResNet18():
     """
     ResNet for ImageNet with 18 layers.
@@ -256,3 +178,99 @@ def ResNet56():
     ResNet for Cifar10/100 with 56 layers.
     """
     return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+
+
+class WideResNet:
+
+    """
+    Wide Residual Networks
+
+    Parameter:
+
+    References:
+    - [Wide Residual Networks] (https://arxiv.org/abs/1605.07146)
+    """
+
+    def __init__(self, layers, widening, deeping=2, dropout_rate=0.0):
+        self.layers = layers  # n: num of convlutions
+        self.widening = widening  # k: widening factor
+        self.deeping = deeping  # l: deeping factor
+        # kernel_size in residual block
+        self.block_type = [(3, 3)] * self.deeping
+        # d: num of residual blocks in conv_i
+        self.blocks = (layers - 4) // (3 * self.deeping)
+        self.dropout_rate = dropout_rate
+        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1  # feature map axis
+
+    def conv(self, inputs, filters, kernel_size, strides=1):
+        inputs = batch_normalization()(inputs)
+        inputs = relu()(inputs)
+        inputs = conv2d(filters=filters, kernel_size=kernel_size,
+                        strides=strides)(inputs)
+        return inputs
+
+    def residual(self, inputs, filters, down_sampling=False):
+
+        outputs = inputs
+        for i, block in enumerate(self.block_type):
+            strides = 2 if down_sampling and i == 0 else 1
+            if i > 0 and self.dropout_rate > 0.0:
+                outputs = dropout(rate=self.dropout_rate)(outputs)
+            outputs = self.conv(outputs, filters=filters,
+                                kernel_size=block, strides=strides)
+
+        if K.int_shape(outputs)[self.bn_axis] != K.int_shape(inputs)[self.bn_axis]:
+            strides = 2 if down_sampling else 1
+            inputs = self.conv(inputs, filters=filters,
+                               kernel_size=(1, 1), strides=strides)
+        outputs = add()([inputs, outputs])
+
+        return outputs
+
+    def build(self, input_shape, classes=10):
+
+        filters = 16
+
+        inputs = keras.Input(shape=input_shape)
+
+        outputs = batch_normalization()(inputs)
+        outputs = relu()(outputs)
+        outputs = conv2d(filters=filters, kernel_size=(3, 3))(outputs)
+
+        filters = filters * self.widening
+
+        for i in range(3):
+            for j in range(self.blocks):
+                down_sampling = True if (i > 0 and j == 0) else False
+                outputs = self.residual(
+                    outputs, filters=filters, down_sampling=down_sampling)
+
+            filters = 2 * filters
+
+        outputs = batch_normalization()(outputs)
+        outputs = relu()(outputs)
+        outputs = average_pooling2d(pool_size=(8, 8))(outputs)
+        outputs = dense(10)(outputs)
+        outputs = softmax()(outputs)
+
+        model = keras.Model(inputs, outputs)
+
+        model.summary()
+
+        return model
+
+
+def WideResNetD40K4():
+    return WideResNet(layers=40, widening=4)
+
+
+def WideResNetD16K8():
+    return WideResNet(layers=16, widening=8)
+
+
+def WideResNetD28K10():
+    return WideResNet(layers=28, widening=10)
+
+
+def WideResNetD28K10D(dropout_rate=0.3):
+    return WideResNet(layers=28, widening=10, dropout_rate=0.3)

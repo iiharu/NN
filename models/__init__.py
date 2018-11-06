@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from .DenseNet import DenseNet
-from .DenseNet import DenseNetBC
-from .ResNet import ResNet
-from .ResNet import ResNet18
-from .ResNet import ResNet34
-from .ResNet import ResNet50
-from .ResNet import ResNet101
-from .ResNet import ResNet152
-from .ResNet import ResNet20
-from .ResNet import ResNet32
-from .ResNet import ResNet44
-from .ResNet import ResNet56
-from .ResNet import WideResNet
-from .LeNet import LeNet
-from .LeNet import LeNet5
+from .DenseNet import DenseNet, DenseNetBC
+from .LeNet import LeNet, LeNet5
+from .ResNet import (ResNet, ResNet18, ResNet20, ResNet32, ResNet34, ResNet44,
+                     ResNet50, ResNet56, ResNet101, ResNet152, WideResNet, WideResNetD16K8, WideResNetD28K10, WideResNetD28K10D, WideResNetD40K4)
