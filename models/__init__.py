@@ -13,5 +13,6 @@ from .ResNet import ResNet20
 from .ResNet import ResNet32
 from .ResNet import ResNet44
 from .ResNet import ResNet56
+from .ResNet import WideResNet
 from .LeNet import LeNet
 from .LeNet import LeNet5
