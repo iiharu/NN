@@ -3,7 +3,7 @@
 from tensorflow import keras
 
 
-def conv_lstm2d(filters, kernel_size, strides=(1, 1),
+def conv_lstm2d(filters, kernel_size, strides=(1, 1), padding='same',
                 activation='tanh', recurrent_activation='hard_sigmoid',
                 use_bias=True,
                 kernel_initializer='glorot_uniform', recurrent_initializer='orthogonal', bias_initializer='zeros',
@@ -15,7 +15,7 @@ def conv_lstm2d(filters, kernel_size, strides=(1, 1),
                 dropout=0., recurrent_dropout=0.,
                 **kwargs):
     return keras.layers.ConvLSTM2D(filters, kernel_size, strides=strides,
-                                   padding='same', data_format=None, dilation_rate=(1, 1),
+                                   padding=padding, data_format=None, dilation_rate=(1, 1),
                                    activation=activation, recurrent_activation=recurrent_activation,
                                    use_bias=use_bias,
                                    kernel_initializer=kernel_initializer, recurrent_initializer=recurrent_initializer, bias_initializer=bias_initializer,

@@ -8,13 +8,13 @@ from tensorflow.keras.layers import SeparableConv2D
 from tensorflow.keras.layers import ZeroPadding2D
 
 
-def conv2d(filters, kernel_size, strides=1,
+def conv2d(filters, kernel_size, strides=1, padding='same',
            activation=None, use_bias=True,
            kernel_initializer='glorot_uniform', bias_initializer='zeros',
            kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
            kernel_constraint=None, bias_constraint=None,
            **kwargs):
-    return Conv2D(filters, kernel_size, strides=strides, padding='same',
+    return Conv2D(filters, kernel_size, strides=strides, padding=padding,
                   activation=activation, use_bias=use_bias,
                   kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
                   kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer,
@@ -26,14 +26,14 @@ def cropping2d(cropping=((0, 0), (0, 0)), **kwargs):
     return Cropping2D(cropping, **kwargs)
 
 
-def transposed_conv2d(filters, kernel_size, strides=1,
+def transposed_conv2d(filters, kernel_size, strides=1, padding='same',
                       activation=None, use_bias=True,
                       kernel_initializer='glorot_uniform', bias_initializer='zeros',
                       kernel_regularizer=None, bias_regularizer=None,
                       activity_regularizer=None,
                       kernel_constraint=None, bias_constraint=None,
                       **kwargs):
-    return Conv2DTranspose(filters, kernel_size, strides=strides, padding='same',
+    return Conv2DTranspose(filters, kernel_size, strides=strides, padding=padding,
                            activation=activation, use_bias=use_bias,
                            kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
                            kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer,
@@ -46,13 +46,13 @@ def up_sampling2d(size=(2, 2), **kwargs):
     return UpSampling2D(size, **kwargs)
 
 
-def separable_conv2d(filters, kernel_size, strides=(1, 1),
+def separable_conv2d(filters, kernel_size, strides=(1, 1), padding='same',
                      depth_multiplier=1,
                      activation=None, use_bias=True,
                      depthwise_initializer='glorot_uniform', pointwise_initializer='glorot_uniform', bias_initializer='zeros',
                      depthwise_regularizer=None, pointwise_regularizer=None, bias_regularizer=None, activity_regularizer=None,
                      depthwise_constraint=None, pointwise_constraint=None, bias_constraint=None):
-    return SeparableConv2D(filters, kernel_size, strides=(1, 1), padding='same',
+    return SeparableConv2D(filters, kernel_size, strides=(1, 1), padding=padding,
                            depth_multiplier=depth_multiplier,
                            activation=activation, use_bias=use_bias,
                            depthwise_initializer=depthwise_initializer, pointwise_initializer=pointwise_initializer, bias_initializer=bias_initializer,
