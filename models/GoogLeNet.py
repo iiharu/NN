@@ -1,47 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from tensorflow import keras
-from tensorflow.keras import losses
-from tensorflow.keras import metrics
-from tensorflow.keras import optimizers
 from tensorflow.keras import backend as K
 
 from .__layers__ import (average_pooling2d, batch_normalization, concat,
                          conv2d, dense, dropout, flatten, max_pooling2d, relu, softmax)
-
-# def CONV(inputs, filters, kernel_size, strides=1):
-#     outputs = batch_normalization()(inputs)
-#     outputs = relu()(outputs)
-#     outputs = conv2d(filters=filters, kernel_size=kernel_size,
-#                      strides=strides)(inputs)
-#     return outputs
-
-
-# def conv_block(inputs, filters, kernel_size, strides=1, activation=None, use_bias=True,
-#                kernel_initializer='glorot_uniform', bias_initializer='zeros',
-#                kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None,
-#                kernel_constraint=None, bias_constraint=None):
-#     inputs = batch_normalization()(inputs)
-#     inputs = relu()(inputs)
-#     inputs = conv2d(filters=filters, kernel_size=kernel_size, strides=strides, activation=activation, use_bias=True,
-#                     kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
-#                     kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer, activity_regularizer=activity_regularizer,
-#                     kernel_constraint=kernel_constraint, bias_constraint=bias_constraint)(inputs)
-#     return inputs
-
-
-# def fc_softmax(inputs, classes, use_bias=True,
-#                kernel_initializer='glorot_uniform', bias_initializer='zeros',
-#                kernel_regularizer=None, bias_regularizer=None,
-#                activity_regularizer=None,
-#                kernel_constraint=None, bias_constraint=None):
-#     inputs = dense(classes, use_bias=use_bias,
-#                    kernel_initializer=kernel_initializer, bias_initializer=bias_initializer,
-#                    kernel_regularizer=kernel_regularizer, bias_regularizer=bias_regularizer,
-#                    activity_regularizer=activity_regularizer,
-#                    kernel_constraint=kernel_constraint, bias_constraint=bias_constraint)(inputs)
-#     inputs = softmax()(inputs)
-#     return inputs
 
 
 class GoogLeNet:
@@ -63,6 +26,27 @@ class GoogLeNet:
 
     def __init__(self):
         self.block = 2
+        self.input_layer = [
+            conv2d(filters=64, kernel_size=(7, 7),
+                   strides=2, padding='same'),
+            max_pooling2d(pool_size=(3, 3),
+                          strides=2, padding='same'),
+            batch_normalization(),
+            conv2d(filters=192, kernel_size=(1, 1),
+                   strides=1, padding='valid'),
+            conv2d(filters=192, kernel_size=(3, 3),
+                   strides=1, padding='same'),
+            batch_normalization(),
+            max_pooling2d(pool_size=(3, 3),
+                          strides=2, padding='same')
+        ]
+        self.output_layer = [
+            average_pooling2d(pool_size=(7, 7), strides=1, padding='valid'),
+            flatten(),
+            dropout(0.4),
+            dense(1000),
+            softmax()
+        ]
 
     def inception(self, inputs, filters):
         outputs1 = inputs
@@ -133,7 +117,8 @@ class GoogLeNet:
                          strides=1, padding='valid')(outputs)
         outputs = conv2d(filters=filters, kernel_size=(3, 3),
                          strides=1, padding='same')(outputs)
-
+        # using batch norm instead of local response norm
+        outputs = batch_normalization()(outputs)
         outputs = max_pooling2d(pool_size=(3, 3),
                                 strides=2,  padding='same')(outputs)
 
