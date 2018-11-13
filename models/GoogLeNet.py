@@ -11,6 +11,8 @@ class GoogLeNet:
     """
     GoogLeNet (Inception v1)
 
+    Thsi model using batch normalization instead of local resposnse normalization.
+
     If use another inception such as v2 (without another split),
     use `inception' with layers parameter.
 
