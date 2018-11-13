@@ -25,7 +25,7 @@ class GoogLeNet:
     """
 
     def __init__(self):
-        self.block = 2
+        self.version = 1
         self.input_layer = [
             conv2d(filters=64, kernel_size=(7, 7),
                    strides=2, padding='same'),
@@ -47,8 +47,9 @@ class GoogLeNet:
             dense(1000),
             softmax()
         ]
+        self.inception = self.inception_v1
 
-    def inception(self, inputs, filters):
+    def inception_v1(self, inputs, filters):
         outputs1 = inputs
         outputs2 = inputs
         outputs3 = inputs
