@@ -8,10 +8,8 @@
 - Keras (tf.keras)
 
 #+begin_src shell
-sudo apt install python3-venv python3-tk? python3-dev
-python3 -m venv venv
-. venv/bin/activate
-pip install numpy matplotlib tensorflow keras pydot python-graphviz pillow
+sudo apt install python3-pip python3-tk python3-dev
+pip3 install --user tensorflow keras matplotlib pydot
 #+end_src
 
 #+begin_src shell
