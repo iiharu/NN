@@ -9,16 +9,15 @@ from .__layers__ import (average_pooling2d, batch_normalization, concat,
 
 class GoogLeNet:
     """
-    GoogLeNet
+    GoogLeNet (Inception v1)
 
-    - Inception Modules
-      - Inception v1 (1x1 conv, 1x1 conv -> 3x3 conv, 1x1 conv -> 5x5 conv, maxpool -> 1x1 conv)
-      - Inception v2
-        - module A (replace 5x5 conv with 3x3 conv -> 3x3 conv)
-        - module B (replace 3x3 conv with 3x1 conv -> 1x3 conv)
-        - module C (replace 3x1 conv -> 1x3 conv with 3x1 conv , 1x3 conv)
+    If use another inception such as v2 (without another split),
+    use `inception' with layers parameter.
 
     - References:
+      - [Going Deeper with Convolutions] (https://arxiv.org/abs/1409.4842v1)
+      - [Rethinking the Inception Architecture for Computer Vision] (https://arxiv.org/abs/1512.00567v3)
+      - [Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning] (https://arxiv.org/abs/1602.07261)
 
     - Examples:
     model = GoogLeNet().build(input_shape=(224, 224, 3), classes=1000)
@@ -31,29 +30,33 @@ class GoogLeNet:
                            metrics.top_k_categorical_accuracy])
     """
 
-    def __init__(self):
-        self.version = 1
-        self.input_layer = [
-            conv2d(filters=64, kernel_size=(7, 7),
-                   strides=2, padding='same'),
-            max_pooling2d(pool_size=(3, 3),
-                          strides=2, padding='same'),
-            batch_normalization(),
-            conv2d(filters=192, kernel_size=(1, 1),
-                   strides=1, padding='valid'),
-            conv2d(filters=192, kernel_size=(3, 3),
-                   strides=1, padding='same'),
-            batch_normalization(),
-            max_pooling2d(pool_size=(3, 3),
-                          strides=2, padding='same')
-        ]
-        self.output_layer = [
-            average_pooling2d(pool_size=(7, 7), strides=1, padding='valid'),
-            flatten(),
-            dropout(0.4),
-            dense(1000),
-            softmax()
-        ]
+    def __init__(self, input_layers=None, outputs_layers=None, inception_layers=None):
+        self.inception_version = 1
+        if input_layers is None:
+            self.input_layers = [conv2d(filters=64, kernel_size=(7, 7),
+                                        strides=2, padding='same'),
+                                 max_pooling2d(pool_size=(3, 3),
+                                               strides=2, padding='same'),
+                                 batch_normalization(),
+                                 conv2d(filters=192, kernel_size=(1, 1),
+                                        strides=1, padding='valid'),
+                                 conv2d(filters=192, kernel_size=(3, 3),
+                                        strides=1, padding='same'),
+                                 batch_normalization(),
+                                 max_pooling2d(pool_size=(3, 3),
+                                               strides=2, padding='same')]
+        else:
+            self.input_layers = input_layers
+
+        if outputs_layers is None:
+            self.output_layers = [average_pooling2d(pool_size=(7, 7),
+                                                    strides=1, padding='valid'),
+                                  flatten(),
+                                  dropout(0.4),
+                                  dense(1000),
+                                  softmax()]
+        else:
+            self.output_layers = outputs_layers
 
     def inception(self, inputs, filters, layers=None):
         """
@@ -88,113 +91,6 @@ class GoogLeNet:
                 outputs[i] = layer(outputs[i])
 
         outputs = concat()(outputs)
-
-        return outputs
-
-    def inception_v1(self, inputs, filters):
-        outputs1 = inputs
-        outputs2 = inputs
-        outputs3 = inputs
-        outputs4 = inputs
-
-        outputs1 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs1)
-
-        outputs2 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs2)
-        outputs2 = conv2d(filters=filters,
-                          kernel_size=(3, 3), strides=1)(outputs2)
-
-        outputs3 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs3)
-        outputs3 = conv2d(filters=filters,
-                          kernel_size=(5, 5), strides=1)(outputs3)
-
-        outputs4 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs4)
-        outputs4 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs4)
-
-        outputs = concat()([outputs1, outputs2, outputs3, outputs4])
-
-        return outputs
-
-    def inception_v2A(self, inputs, filters):
-        outputs1 = inputs
-        outputs2 = inputs
-        outputs3 = inputs
-        outputs4 = inputs
-
-        outputs1 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs1)
-
-        outputs2 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs2)
-        outputs2 = conv2d(filters=filters,
-                          kernel_size=(3, 3), strides=1)(outputs2)
-
-        outputs3 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs3)
-        outputs3 = conv2d(filters=filters,
-                          kernel_size=(3, 3), strides=1)(outputs3)
-        outputs3 = conv2d(filters=filters,
-                          kernel_size=(3, 3), strides=1)(outputs3)
-
-        outputs4 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs4)
-        outputs4 = conv2d(filters=filters,
-                          kernel_size=(1, 1), strides=1)(outputs4)
-
-        outputs = concat()([outputs1, outputs2, outputs3, outputs4])
-
-        return outputs
-
-    def inception_v2B(self, inputs, filters):
-        outputs1 = inputs
-        outputs2 = inputs
-        outputs3 = inputs
-        outputs4 = inputs
-
-        outputs1 = conv2d(filters=filters, kernel_size=(1, 1))(outputs1)
-
-        outputs2 = conv2d(filters=filters, kernel_size=(1, 1))(outputs2)
-        outputs2 = conv2d(filters=filters, kernel_size=(1, 3))(outputs2)
-        outputs2 = conv2d(filters=filters, kernel_size=(3, 1))(outputs2)
-
-        outputs3 = conv2d(filters=filters, kernel_size=(1, 1))(outputs3)
-        outputs3 = conv2d(filters=filters, kernel_size=(1, 3))(outputs3)
-        outputs3 = conv2d(filters=filters, kernel_size=(3, 1))(outputs3)
-        outputs3 = conv2d(filters=filters, kernel_size=(1, 3))(outputs3)
-        outputs3 = conv2d(filters=filters, kernel_size=(3, 1))(outputs3)
-
-        outputs4 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs4)
-        outputs4 = conv2d(filters=filters, kernel_size=(1, 1))(outputs4)
-
-        outputs = concat()([outputs1, outputs2, outputs3, outputs4])
-
-        return outputs
-
-    def inception_v2C(self, inputs, filters):
-        outputs1 = inputs
-        outputs2 = inputs
-        outputs3 = inputs
-        outputs4 = inputs
-
-        outputs1 = conv2d(filters=filters, kernel_size=(1, 1))(outputs1)
-
-        outputs2 = conv2d(filters=filters, kernel_size=(1, 1))(outputs2)
-        outputs21 = conv2d(filters=filters, kernel_size=(1, 3))(outputs2)
-        outputs22 = conv2d(filters=filters, kernel_size=(3, 1))(outputs2)
-        outputs2 = concat()([outputs21, outputs22])
-
-        outputs3 = conv2d(filters=filters, kernel_size=(1, 1))(outputs3)
-        outputs3 = conv2d(filters=filters, kernel_size=(3, 3))(outputs3)
-        outputs31 = conv2d(filters=filters, kernel_size=(1, 3))(outputs3)
-        outputs32 = conv2d(filters=filters, kernel_size=(3, 1))(outputs3)
-        outputs3 = concat()([outputs31, outputs32])
-
-        outputs4 = max_pooling2d(pool_size=(3, 3), strides=1)(outputs4)
-        outputs4 = conv2d(filters=filters, kernel_size=(1, 1))(outputs4)
-
-        outputs = concat()([outputs1, outputs2, outputs3, outputs4])
 
         return outputs
 
