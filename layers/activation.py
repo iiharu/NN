@@ -4,6 +4,10 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras import activations
 
 
+def activation(activation, **kwargs):
+    return Activation(activation=activation, **kwargs)
+
+
 def linear(**kwargs):
     return Activation(activation=activations.linear, **kwargs)
 

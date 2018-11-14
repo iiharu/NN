@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Activation Layers
+from .activation import activation
 from .activation import linear
 from .activation import relu
 from .activation import sigmoid
