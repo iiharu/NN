@@ -22,10 +22,35 @@ def conv_block(inputs, filters,
     return inputs
 
 
+def conv_relu_block(inputs, filters,
+                    kernel_size=(3, 3), strides=1):
+    inputs = conv_block(inputs, filters=filters,
+                        kernel_size=kernel_size, strides=strides)
+    inputs = relu()(inputs)
+    return inputs
+
+
 def separable_conv_block(inputs, filters,
                          kernel_size=(3, 3), strides=1):
     inputs = separable_conv2d(filters=filters, kernel_size=kernel_size)(inputs)
     inputs = batch_normalization()(inputs)
+    return inputs
+
+
+def separable_conv_relu_block(inputs, filters,
+                              kernel_size=(3, 3), strides=1):
+    inputs = separable_conv_block(inputs, filters=filters,
+                                  kernel_size=kernel_size, strides=strides)
+    inputs = relu()(inputs)
+    return inputs
+
+
+def relu_separable_conv_block(inputs, filters,
+                              kernel_size=(3, 3), strides=1):
+    inputs = relu()(inputs)
+    inputs = separable_conv_block(inputs, filters=filters,
+                                  kernel_size=kernel_size, strides=strides)
+    inputs = relu()(inputs)
     return inputs
 
 
@@ -41,72 +66,62 @@ class Xception:
 
         inputs = keras.Input(shape=input_shape)
 
+        # Entry flow
         filters = 32
-        outputs = conv_block(inputs, filters=filters, strides=(2, 2))
-        outputs = relu()(outputs)
+        outputs = conv_relu_block(inputs, filters=filters, strides=(2, 2))
 
         filters = 64
-        outputs = conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
+        outputs = conv_relu_block(inputs, filters=filters)
 
         residual = outputs
 
         filters = 128
         outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
-        outputs = separable_conv_block(outputs, filters=filters)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
         outputs = max_pooling2d(pool_size=(3, 3), strides=(2, 2))(outputs)
         residual = conv_block(residual, filters=filters,
                               kernel_size=(1, 1), strides=(2, 2))
         outputs = add()([outputs, residual])
 
         filters = 256
-        outputs = relu()(outputs)
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
-        outputs = separable_conv_block(outputs, filters=filters)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
         outputs = max_pooling2d(pool_size=(3, 3), strides=(2, 2))(outputs)
         residual = conv_block(residual, filters=filters,
                               kernel_size=(1, 1), strides=(2, 2))
         outputs = add()([outputs, residual])
 
         filters = 728
-        outputs = relu()(outputs)
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
-        outputs = separable_conv_block(outputs, filters=filters)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
         outputs = max_pooling2d(pool_size=(3, 3), strides=(2, 2))(outputs)
         residual = conv_block(residual, filters=filters,
                               kernel_size=(1, 1), strides=(2, 2))
         outputs = add()([outputs, residual])
 
+        # Middle flow
+        filters = 728
         for _ in range(8):
             residual = outputs
 
-            outputs = relu()(outputs)
-            outputs = separable_conv_block(outputs, filters=filters)
-            outputs = relu()(outputs)
-            outputs = separable_conv_block(outputs, filters=filters)
-            outputs = relu()(outputs)
-            outputs = separable_conv_block(outputs, filters=filters)
+            outputs = relu_separable_conv_block(outputs, filters=filters)
+            outputs = relu_separable_conv_block(outputs, filters=filters)
+            outputs = relu_separable_conv_block(outputs, filters=filters)
             outputs = add()([outputs, residual])
 
+        # Exit flow
         residual = outputs
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
 
         filters = 1024
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
+        outputs = relu_separable_conv_block(outputs, filters=filters)
         outputs = add()([outputs, residual])
 
         filters = 1536
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
+        outputs = separable_conv_relu_block(outputs, filters=filters)
 
         filters = 2048
-        outputs = separable_conv_block(outputs, filters=filters)
-        outputs = relu()(outputs)
+        outputs = separable_conv_relu_block(outputs, filters=filters)
 
         outputs = global_average_pooling2d()(outputs)
 
