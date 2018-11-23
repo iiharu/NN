@@ -1,6 +1,7 @@
-#+TITLE: Keras Deep Learning
+#+TITLE: Deep Learning
 
 * Requirement
+** Keras
 - Python3
 - NumPy
 - MatPlotLib
@@ -19,6 +20,23 @@ conda install -n deeplearning python=3.6 tensorflow keras python-graphviz pydot 
 # To use virtual env.
 conda activate deeplearning
 #+end_src
+
+** PyTorch
+- Python3
+- Torch
+- TorchVision
+
+#+begin_src shell
+    pip3 install --user torch torchvision
+    pip3 install --user http://download.pytorch.org/whl/cpu/torch-0.4.1-cp35-cp35m-linux_x86_64.whl
+#+end_src
+
+#+begin_src shell
+conda install pytorch -c pytorch
+pip install torchvision
+#+end_src
+
+
 
 * Contains
 
