@@ -2,13 +2,6 @@
 
 from matplotlib import pyplot
 from tensorflow import keras
-from tensorflow.keras import activations
-from tensorflow.keras import backend as K
-from tensorflow.keras import (datasets, initializers, losses, metrics,
-                              optimizers, regularizers)
-from tensorflow.keras.layers import (Activation, Add, AveragePooling2D,
-                                     BatchNormalization, Conv2D, Dense,
-                                     Flatten, GlobalAveragePooling2D)
 
 CLASSES = 100
 ROWS, COLS, CHS = 32, 32, 3
@@ -21,53 +14,54 @@ EPOCHS = 32
 
 
 def add(**kwargs):
-    return Add(**kwargs)
+    return keras.layers.Add(**kwargs)
 
 
 def average_pooling2d(pool_size=(2, 2), strides=None, padding='same', **kwargs):
-    return AveragePooling2D(pool_size=pool_size,
-                            strides=strides,
-                            padding=padding,
-                            **kwargs)
+    return keras.layers.AveragePooling2D(pool_size=pool_size,
+                                         strides=strides,
+                                         padding=padding,
+                                         **kwargs)
 
 
 def batch_normalization(axis=-1, **kwargs):
-    return BatchNormalization(axis=axis, **kwargs)
+    return keras.layers.BatchNormalization(axis=axis, **kwargs)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
-    return Conv2D(filters,
-                  kernel_size,
-                  strides=strides,
-                  padding='same',
-                  use_bias=False,
-                  kernel_initializer=initializers.he_normal(),
-                  kernel_regularizer=regularizers.l2(0.0001),
-                  **kwargs)
+    return keras.layers.Conv2D(filters,
+                               kernel_size,
+                               strides=strides,
+                               padding='same',
+                               use_bias=False,
+                               kernel_initializer=keras.initializers.he_normal(),
+                               kernel_regularizer=keras.regularizers.l2(
+                                   0.0001),
+                               **kwargs)
 
 
 def dense(units, **kwargs):
-    return Dense(units,
-                 kernel_regularizer=regularizers.l2(0.0001),
-                 bias_regularizer=regularizers.l2(0.0001),
-                 **kwargs)
+    return keras.layers.Dense(units,
+                              kernel_regularizer=keras.regularizers.l2(0.0001),
+                              bias_regularizer=keras.regularizers.l2(0.0001),
+                              **kwargs)
 
 
 def flatten(**kwargs):
-    return Flatten(**kwargs)
+    return keras.layers.Flatten(**kwargs)
 
 
 def global_average_pooling2d(**kwargs):
-    return GlobalAveragePooling2D(**kwargs)
+    return keras.layers.GlobalAveragePooling2D(**kwargs)
 
 
 def relu(max_value=None, **kwargs):
-    return Activation(activation=activations.relu, **kwargs)
+    return keras.layers.Activation(activation=keras.activations.relu, **kwargs)
 
 
 def softmax(axis=-1, **kwargs):
     # return keras.layers.Softmax(axis=axis, **kwargs)
-    return Activation(activation=activations.softmax, **kwargs)
+    return keras.layers.Activation(activation=keras.activations.softmax, **kwargs)
 
 
 class ResNet:
@@ -101,7 +95,7 @@ class ResNet:
         self.blocks = blocks
         self.filters = filters
         self.bottleneck = bottleneck
-        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
+        self.bn_axis = -1 if keras.backend.image_data_format() == 'channels_last' else 1
         self.input_layers = input_layers
         self.output_layer = output_layers
 
@@ -187,7 +181,8 @@ def ResNet56():
 
 
 def prepare():
-    (X_train, Y_train), (X_test, Y_test) = datasets.cifar100.load_data(label_mode='fine')
+    (X_train, Y_train), (X_test, Y_test) = keras.datasets.cifar100.load_data(
+        label_mode='fine')
 
     X_train = X_train.astype(float)
     X_test = X_test.astype(float)
@@ -222,9 +217,9 @@ if __name__ == '__main__':
 
     keras.utils.plot_model(model, to_file='model.png')
 
-    model.compile(optimizer=optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
-                  loss=losses.categorical_crossentropy,
-                  metrics=[metrics.categorical_accuracy, metrics.top_k_categorical_accuracy])
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
+                  loss=keras.losses.categorical_crossentropy,
+                  metrics=[keras.metrics.categorical_accuracy, keras.metrics.top_k_categorical_accuracy])
 
     datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
                                                            height_shift_range=4,
