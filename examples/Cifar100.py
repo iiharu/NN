@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+import tensorflow as tf
 from matplotlib import pyplot
 from tensorflow import keras
 
@@ -10,7 +12,7 @@ TRAIN_SIZE = 50000
 TEST_SIZE = 10000
 
 BATCH_SIZE = 128
-EPOCHS = 32
+EPOCHS = 100
 
 
 def add(**kwargs):
@@ -60,8 +62,15 @@ def relu(max_value=None, **kwargs):
 
 
 def softmax(axis=-1, **kwargs):
-    # return keras.layers.Softmax(axis=axis, **kwargs)
     return keras.layers.Activation(activation=keras.activations.softmax, **kwargs)
+
+
+def conv_block(inputs, filters, kernel_size, strides=(1, 1)):
+    inputs = batch_normalization()(inputs)
+    inputs = relu()(inputs)
+    inputs = conv2d(filters=filters, kernel_size=kernel_size,
+                    strides=strides)(inputs)
+    return inputs
 
 
 class ResNet:
@@ -156,28 +165,60 @@ def ResNet20():
     """
     ResNet for Cifar10/100 with 20 layers.
     """
-    return ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+    input_layers = [
+        batch_normalization(),
+        relu(),
+        conv2d(filters=16, kernel_size=(3, 3))]
+    output_layers = [global_average_pooling2d()]
+    return ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], input_layers=input_layers, output_layers=output_layers)
 
 
 def ResNet32():
     """
     ResNet for Cifar10/100 with 32 layers.
     """
-    return ResNet(blocks=[5, 5, 5], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+    input_layers = [
+        batch_normalization(),
+        relu(),
+        conv2d(filters=16, kernel_size=(3, 3))]
+    output_layers = [global_average_pooling2d()]
+    return ResNet(blocks=[5, 5, 5], filters=[16, 32, 64], input_layers=input_layers, output_layers=output_layers)
 
 
 def ResNet44():
     """
     ResNet for Cifar10/100 with 44 layers.
     """
-    return ResNet(blocks=[7, 7, 7], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+    input_layers = [
+        batch_normalization(),
+        relu(),
+        conv2d(filters=16, kernel_size=(3, 3))]
+    output_layers = [global_average_pooling2d()]
+    return ResNet(blocks=[7, 7, 7], filters=[16, 32, 64], input_layers=input_layers, output_layers=output_layers)
 
 
 def ResNet56():
     """
     ResNet for Cifar10/100 with 56 layers.
     """
-    return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], input_layers=[conv2d(filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+    input_layers = [
+        batch_normalization(),
+        relu(),
+        conv2d(filters=16, kernel_size=(3, 3))]
+    output_layers = [global_average_pooling2d()]
+    return ResNet(blocks=[9, 9, 9], filters=[16, 32, 64], input_layers=input_layers, output_layers=output_layers)
+
+
+def ResNet110():
+    """
+    ResNet for Cifar10/100 with 110 layers.
+    """
+    input_layers = [
+        batch_normalization(),
+        relu(),
+        conv2d(filters=16, kernel_size=(3, 3))]
+    output_layers = [global_average_pooling2d()]
+    return ResNet(blocks=[18, 18, 18],  filters=[16, 32, 64], input_layers=input_layers, output_layers=output_layers)
 
 
 def prepare():
@@ -210,17 +251,22 @@ def plot(history, metrics=['loss']):
         pyplot.show()
 
 
+def build(input_shape, classes):
+    # model = ResNet56().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
+    model = ResNet110().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
+    return model
+
+
 if __name__ == '__main__':
     (X_train, Y_train), (X_test, Y_test) = prepare()
 
-    model = ResNet56().build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
+    model = build(input_shape=(ROWS, COLS, CHS), classes=CLASSES)
 
     keras.utils.plot_model(model, to_file='model.png')
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=[keras.metrics.categorical_accuracy, keras.metrics.top_k_categorical_accuracy])
-
     datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
                                                            height_shift_range=4,
                                                            fill_mode='constant',
@@ -229,9 +275,15 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE // 1,
+                                  steps_per_epoch=TRAIN_SIZE,
                                   epochs=EPOCHS,
                                   verbose=2,
+                                  callbacks=[keras.callbacks.TerminateOnNaN(),
+                                             # keras.callbacks.EarlyStopping(),
+                                             # keras.callbacks.TensorBoard(),
+                                             keras.callbacks.ReduceLROnPlateau(
+                                                 verbose=1)
+                                             ],
                                   validation_data=(X_test, Y_test))
 
     plot(history, metrics=[
