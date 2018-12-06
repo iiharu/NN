@@ -11,25 +11,12 @@ class Standardization(keras.layers.Layer):
         super(Standardization,self).__init__(**kwargs)
 
     def build(self,input_shape):
-        self.mean = self.add_weight(name='mean',
-                                    shape=input_shape[1:],
-                                    trainable=False)
-        self.var = self.add_weight(name='var',
-                                   shape=input_shape[1:],
-                                   trainable=False)
         super(Standardization,self).build(input_shape)
 
     def call(self,x):
-        # print(x)
-        # print(x.shape)
-        # mean = keras.backend.mean(x, axis=0)
-        self.mean = K.mean(x, axis=0)
-        # print(mean.shape)
-        # var = keras.backend.mean(keras.backend.square(x - mean),0)
-        self.var = K.mean(K.square(x - self.mean), 0)
-        # print(var.shape)
-        y = (x - self.mean) / (K.sqrt(self.var) + K.epsilon())
-        # y = (x - mean) / (keras.backend.sqrt(var) + keras.backend.epsilon())
+        mean = K.mean(x, axis=0)
+        var = K.mean(K.square(x - mean),0)
+        y = (x - mean) / (K.sqrt(var) + K.epsilon())
         return y
 
     def compute_output_shape(self, input_shape):
@@ -51,7 +38,7 @@ class Standardization(keras.layers.Layer):
 
 batch_size = 10
 steps = 1
-X = np.random.rand(100,5,5)
+X = np.random.rand(10000,5,5)
 model = keras.Sequential()
 model.add(Standardization())
 Y = model.predict(X, batch_size=batch_size)
