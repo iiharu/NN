@@ -5,8 +5,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import BatchNormalization
 
-class Standardization(keras.layers.Layer):
+class Standardization(Layer):
     def __init__(self,**kwargs):
         super(Standardization,self).__init__(**kwargs)
 
@@ -15,32 +17,42 @@ class Standardization(keras.layers.Layer):
 
     def call(self,x):
         mean = K.mean(x, axis=0)
-        var = K.mean(K.square(x - mean),0)
+        var = K.mean(K.square(x - mean),axis=0)
         y = (x - mean) / (K.sqrt(var) + K.epsilon())
         return y
 
     def compute_output_shape(self, input_shape):
         return input_shape
 
-# class BatchNorm(keras.Layer):
-#     def __init__(self,**kwargs):
-#         super(BatchNorm,self).__init__(**kwargs)
-#     def build(self,input_shape):
-#         self.ganma = self.add_weight(name='ganma',
-#                                      shape=(input_shape[-1]),
-#                                      initilizer='uniform',
-#                                      trainable=True)
-#         self.beta = self.add_weight(name='beta',shape=(input_shape[-1]),
-#                                                        initilizer='uniform',
-#                                                        trainable=True)
-#         self.mu = self.add_weight(name='mu',shape=(input_shape[-1]))
+class BatchNorm(Layer):
+    def __init__(self,**kwargs):
+        super(BatchNorm, self).__init__(**kwargs)
+    def build(self,input_shape,**kwargs):
+        self.gamma = self.add_weight(name='gamma',
+                                     shape=input_shape[1:],
+                                     initializer='uniform',
+                                     trainable=True)
+        self.beta = self.add_weight(name='beta',
+                                    shape=input_shape[1:],
+                                    initializer='uniform',
+                                    trainable=True)
+        super(BatchNorm,self).__init__(**kwargs)
+    def call(self, x):
+        mean = K.mean(x, axis=0)
+        var = K.mean(K.square(x - mean), axis=0)
+        y = (x - mean) / (K.sqrt(var) + K.epsilon())
+        y = self.gamma * x + self.beta
+        return y
+    def compute_output_shape(self,input_shape):
+        return input_shape
 
-
-batch_size = 10
+batch_size = 1
 steps = 1
 X = np.random.rand(10000,5,5)
+
 model = keras.Sequential()
-model.add(Standardization())
+# model.add(Standardization())
+model.add(BatchNorm())
 Y = model.predict(X, batch_size=batch_size)
 print(Y)
 
