@@ -7,6 +7,8 @@ from tensorflow import keras
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
 
 class Standardization(Layer):
     def __init__(self,**kwargs):
@@ -46,15 +48,25 @@ class BatchNorm(Layer):
     def compute_output_shape(self,input_shape):
         return input_shape
 
-batch_size = 1
-steps = 1
-X = np.random.rand(10000,5,5)
+
+BATCH_SIZE=32
+EPOCHS=10
+(X_train, Y_train),(X_test,Y_test) = keras.datasets.mnist.load_data()
+Y_train = keras.utils.to_categorical(Y_train, 10)
+Y_test = keras.utils.to_categorical(Y_test, 10)
 
 model = keras.Sequential()
-# model.add(Standardization())
-model.add(BatchNorm())
-Y = model.predict(X, batch_size=batch_size)
-print(Y)
+model.add(Flatten(input_shape=(28,28)))
+model.add(BatchNormalization())
+# model.add(BatchNorm())
+model.add(Dense(100, activation='relu'))
+model.add(BatchNormalization())
+# model.add(BatchNorm())
+model.add(Dense(10, activation='softmax'))
+
+model.compile(optimizer='SGD', loss='categorical_crossentropy')
+
+model.fit(X_train, Y_train,batch_size=BATCH_SIZE,epochs=EPOCHS)
 
 # x = K.random_uniform_variable(shape=(10, 5), low=0, high=1)
 # print(K.dtype(x))
