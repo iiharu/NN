@@ -9,7 +9,7 @@ ROWS, COLS, CHS = 28, 28, 1
 TRAIN_SIZE = 60000
 TEST_SIZE = 10000
 
-BATCH_SIZE = 218
+BATCH_SIZE = 128
 EPOCHS = 32
 
 
@@ -36,6 +36,7 @@ class LeNet:
     """
     LeNet-300-100
     """
+
     def build(self, input_shape, classes):
         inputs = keras.Input(shape=input_shape)
 
@@ -70,7 +71,7 @@ def prepare():
     else:
         X_train = X_train.reshape((TRAIN_SIZE, CHS, ROWS, COLS))
         X_test = X_test.reshape((TEST_SIZE, CHS, ROWS, COLS))
-    
+
     Y_train = keras.utils.to_categorical(Y_train, CLASSES)
     Y_test = keras.utils.to_categorical(Y_test, CLASSES)
 
@@ -113,6 +114,7 @@ if __name__ == '__main__':
 
     score = model.evaluate(X_test, Y_test, verbose=0)
 
+    model.save('model.h5')
+
     print("loss: ", score[0])
     print("acc: ", score[1])
-    

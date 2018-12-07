@@ -4,6 +4,7 @@
 # Project Specified
 #
 *.png
+*.h5
 
 #
 # Python
