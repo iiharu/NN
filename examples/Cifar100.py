@@ -264,7 +264,7 @@ if __name__ == '__main__':
 
     keras.utils.plot_model(model, to_file='model.png')
 
-    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.1, momentum=0.9, nesterov=True),
                   loss=keras.losses.categorical_crossentropy,
                   metrics=[keras.metrics.categorical_accuracy, keras.metrics.top_k_categorical_accuracy])
     datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=4,
@@ -275,7 +275,7 @@ if __name__ == '__main__':
     datagen.fit(X_train)
 
     history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
-                                  steps_per_epoch=TRAIN_SIZE,
+                                  steps_per_epoch=TRAIN_SIZE // 10,
                                   epochs=EPOCHS,
                                   verbose=2,
                                   callbacks=[keras.callbacks.TerminateOnNaN(),
@@ -290,6 +290,8 @@ if __name__ == '__main__':
          'loss', 'categorical_accuracy', 'top_k_categorical_accuracy'])
 
     score = model.evaluate(X_test, Y_test, verbose=0)
+
+    model.save('model.h5')
 
     print("loss: ", score[0])
     print("acc:  ", score[1])

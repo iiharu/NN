@@ -2,6 +2,31 @@
 
 from tensorflow.keras.layers import Activation
 from tensorflow.keras import activations
+from tensorflow.keras.layers import Layer
+
+
+class ReLU(Layer):
+    def __init__(self, **kwargs):
+        super(ReLU, self).__init__(**kwargs)
+        self.supports_masking = True
+
+    def call(self, inputs):
+        return activations.relu(inputs)
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
+class Softmax(Layer):
+    def __init__(self, **kwargs):
+        super(Softmax, self).__init__(**kwargs)
+        self.supports_masking = True
+
+    def call(self, inputs):
+        return activations.softmax(inputs)
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
 
 
 def activation(activation, **kwargs):
