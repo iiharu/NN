@@ -29,22 +29,33 @@ class Standardization(Layer):
 class BatchNorm(Layer):
     def __init__(self,**kwargs):
         super(BatchNorm, self).__init__(**kwargs)
-    def build(self,input_shape,**kwargs):
+
+
+    def build(self,input_shape):
+        self.mean = self.add_weight(name='mean',
+                                    shape=input_shape[1:],
+                                    initializer='zeros',
+                                    trainable=False)
+        self.var = self.add_weight(name='var',
+                                   shape=input_shape[1:],
+                                   initializer='ones',
+                                   trainable=False)
         self.gamma = self.add_weight(name='gamma',
                                      shape=input_shape[1:],
-                                     initializer='uniform',
+                                     initializer='ones',
                                      trainable=True)
         self.beta = self.add_weight(name='beta',
                                     shape=input_shape[1:],
-                                    initializer='uniform',
+                                    initializer='zeros',
                                     trainable=True)
-        super(BatchNorm,self).__init__(**kwargs)
+        super(BatchNorm,self).build(input_shape)
+
     def call(self, x):
-        mean = K.mean(x, axis=0)
-        var = K.mean(K.square(x - mean), axis=0)
-        y = (x - mean) / (K.sqrt(var) + K.epsilon())
-        y = self.gamma * x + self.beta
+        self.mean, self.var = K.mean(x, axis=0), K.var(x, axis=0)
+        y = (x - self.mean) / (K.sqrt(self.var) + K.epsilon())
+        y = self.gamma * y + self.beta
         return y
+
     def compute_output_shape(self,input_shape):
         return input_shape
 
@@ -52,46 +63,23 @@ class BatchNorm(Layer):
 BATCH_SIZE=32
 EPOCHS=10
 (X_train, Y_train),(X_test,Y_test) = keras.datasets.mnist.load_data()
+X_train = X_train.astype(float) / 255
+X_test = X_test.astype(float) / 255
 Y_train = keras.utils.to_categorical(Y_train, 10)
 Y_test = keras.utils.to_categorical(Y_test, 10)
 
 model = keras.Sequential()
 model.add(Flatten(input_shape=(28,28)))
-model.add(BatchNormalization())
-# model.add(BatchNorm())
+# model.add(BatchNormalization())
+model.add(BatchNorm())
 model.add(Dense(100, activation='relu'))
-model.add(BatchNormalization())
-# model.add(BatchNorm())
+# model.add(BatchNormalization())
+model.add(BatchNorm())
 model.add(Dense(10, activation='softmax'))
+
+model.summary()
 
 model.compile(optimizer='SGD', loss='categorical_crossentropy')
 
-model.fit(X_train, Y_train,batch_size=BATCH_SIZE,epochs=EPOCHS)
-
-# x = K.random_uniform_variable(shape=(10, 5), low=0, high=1)
-# print(K.dtype(x))
-# print(x.shape)
-# mean = K.mean(x,axis=0)
-# print(mean.shape)
-# var = K.mean(K.square(x - mean), axis=0)
-# print(var.shape)
-# standardized = (x - mean) / (K.sqrt(var) + K.epsilon())
-# print(y.shape)
-# print(K.eval(standardized))
-# print(x.shape[1:])
-# print(x.shape[1:-1])
-# gamma = K.variable(np.ones(x.shape[-1]), dtype=K.dtype(x), name='gamma')
-# beta = K.variable(np.zeros(x.shape[-1]), dtype=K.dtype(x), name='beta')
-# batch_normalized = K.batch_normalization(x, mean, var, beta, gamma)
-# y = K.normalize_batch_in_training(x, gamma, beta, reduction_axes=range(x.shape[-1]))
-# print(K.eval(batch_normalized))
-# print(K.eval(batch_normalized - standardized))
-
-# x = np.random.rand(10, 5)
-# mean = np.mean(x, axis=0)
-# var = np.mean(np.square(x - mean),axis=0)
-# y = (x - mean) / np.sqrt(var)
-# print(x)
-# print(mean)
-# print(var)
-# print(y)
+model.fit(X_train, Y_train,
+          batch_size=BATCH_SIZE,epochs=EPOCHS)
