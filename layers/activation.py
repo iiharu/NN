@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from functools import partial
 from tensorflow.keras.layers import Activation
 from tensorflow.keras import activations
 from tensorflow.keras.layers import Layer
@@ -9,6 +10,9 @@ class ReLU(Layer):
     def __init__(self, **kwargs):
         super(ReLU, self).__init__(**kwargs)
         self.supports_masking = True
+
+    def build(self, input_shape):
+        super(ReLU, self).build(input_shape)
 
     def call(self, inputs):
         return activations.relu(inputs)
@@ -21,6 +25,9 @@ class Softmax(Layer):
     def __init__(self, **kwargs):
         super(Softmax, self).__init__(**kwargs)
         self.supports_masking = True
+
+    def build(self, input_shape):
+        super(Softmax, self).build(input_shape)
 
     def call(self, inputs):
         return activations.softmax(inputs)
@@ -42,8 +49,7 @@ def linear(**kwargs):
 
 
 def relu(max_value=None, **kwargs):
-    # return keras.layers.ReLU(max_value=max_value, **kwargs)
-    return Activation(activation=activations.relu, **kwargs)
+    return ReLU(**kwargs)
 
 
 def selu(**kwargs):
@@ -55,8 +61,7 @@ def sigmoid(**kwargs):
 
 
 def softmax(axis=-1, **kwargs):
-    # return keras.layers.Softmax(axis=axis, **kwargs)
-    return Activation(activation=activations.softmax, **kwargs)
+    return Softmax(**kwargs)
 
 
 def tanh(**kwargs):

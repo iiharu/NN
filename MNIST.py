@@ -8,7 +8,7 @@ from models import LeNet5
 from utils import plot
 from datasets import mnist
 
-from layers import dense, flatten
+from layers import dense, flatten, relu, sigmoid, softmax
 from tensorflow.keras.layers import BatchNormalization
 
 CLASSES = 10
@@ -26,7 +26,10 @@ def build(input_shape, classes=CLASSES):
     model = keras.Sequential([
         flatten(input_shape=input_shape),
         BatchNormalization(center=False, scale=False),
-        dense(units=classes)
+        relu(),
+        dense(units=100),
+        dense(units=classes),
+        softmax()
     ])
     model.summary()
 
@@ -41,15 +44,15 @@ if __name__ == '__main__':
 
     #keras.utils.plot_model(model, to_file='model.png')
 
-    # model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
-    #              loss=keras.losses.categorical_crossentropy,
-    #              metrics=['acc'])
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True),
+                  loss=keras.losses.categorical_crossentropy,
+                  metrics=['acc'])
 
-    # history = model.fit(X_train, Y_train,
-    #                    batch_size=BATCH_SIZE,
-    #                    epochs=EPOCHS,
-    #                    validation_data=(X_test, Y_test),
-    #                    verbose=2)
+    history = model.fit(X_train, Y_train,
+                        batch_size=BATCH_SIZE,
+                        epochs=EPOCHS,
+                        validation_data=(X_test, Y_test),
+                        verbose=2)
 
     #plot(history, metrics=['loss', 'acc'])
 
