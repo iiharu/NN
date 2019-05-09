@@ -5,28 +5,52 @@ from tensorflow import keras
 from tensorflow.keras import activations
 from tensorflow.keras import backend as K
 from tensorflow.keras import initializers, regularizers
-from tensorflow.keras.layers import Conv2D, Dense
+from tensorflow.keras import layers
 
-from .__layers__ import (average_pooling2d, batch_normalization,
-                         concat, global_average_pooling2d, relu, softmax)
+
+def average_pooling2d(pool_size=(2, 2), strides=None, padding='same', **kwargs):
+    return layers.AveragePooling2D(pool_size=pool_size,
+                                   strides=strides,
+                                   padding=padding,
+                                   **kwargs)
+
+
+def batch_normalization(axis=-1, **kwargs):
+    return layers.BatchNormalization(axis=axis, **kwargs)
+
+
+def concat(axis=-1, **kwargs):
+    return layers.Concatenate(axis=axis, **kwargs)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
-    return Conv2D(filters=filters,
-                  kernel_size=kernel_size,
-                  strides=strides,
-                  padding='same',
-                  use_bias=False,
-                  kernel_initializer=initializers.he_normal(),
-                  kernel_regularizer=regularizers.l2(0.0001),
-                  **kwargs)
+    return layers.Conv2D(filters=filters,
+                         kernel_size=kernel_size,
+                         strides=strides,
+                         padding='same',
+                         use_bias=False,
+                         kernel_initializer=initializers.he_normal(),
+                         kernel_regularizer=regularizers.l2(0.0001),
+                         **kwargs)
 
 
 def dense(units, **kwargs):
-    return Dense(units,
-                 kernel_regularizer=regularizers.l2(0.0001),
-                 bias_regularizer=regularizers.l2(0.0001),
-                 **kwargs)
+    return layers.Dense(units,
+                        kernel_regularizer=regularizers.l2(0.0001),
+                        bias_regularizer=regularizers.l2(0.0001),
+                        **kwargs)
+
+
+def global_average_pooling2d(**kwargs):
+    return layers.GlobalAveragePooling2D(**kwargs)
+
+
+def relu(**kwargs):
+    return layers.Activation(activation='relu', **kwargs)
+
+
+def softmax(**kwargs):
+    return layers.Activation(activation='softmax', **kwargs)
 
 
 class DenseNet:

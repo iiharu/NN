@@ -3,30 +3,26 @@
 from tensorflow import keras
 from tensorflow.keras import activations
 from tensorflow.keras import backend as K
-from tensorflow.keras import initializers, regularizers
-from tensorflow.keras.layers import Conv2D, Dense
-
-from .__layers__ import (add, average_pooling2d, batch_normalization, dropout, flatten,
-                         global_average_pooling2d, max_pooling2d, relu,
-                         softmax)
+from tensorflow.keras import layers
+from tensorflow.keras import activations, initializers, regularizers
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
-    return Conv2D(filters,
-                  kernel_size,
-                  strides=strides,
-                  padding='same',
-                  use_bias=False,
-                  kernel_initializer=initializers.he_normal(),
-                  kernel_regularizer=regularizers.l2(0.0001),
-                  **kwargs)
+    return layers.Conv2D(filters,
+                         kernel_size,
+                         strides=strides,
+                         padding='same',
+                         use_bias=False,
+                         kernel_initializer=initializers.he_normal(),
+                         kernel_regularizer=regularizers.l2(0.0001),
+                         **kwargs)
 
 
 def dense(units, **kwargs):
-    return Dense(units,
-                 kernel_regularizer=regularizers.l2(0.0001),
-                 bias_regularizer=regularizers.l2(0.0001),
-                 **kwargs)
+    return layers.Dense(units,
+                        kernel_regularizer=regularizers.l2(0.0001),
+                        bias_regularizer=regularizers.l2(0.0001),
+                        **kwargs)
 
 
 class ResNet:

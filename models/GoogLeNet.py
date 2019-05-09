@@ -2,9 +2,8 @@
 
 from tensorflow import keras
 from tensorflow.keras import backend as K
-
-from .__layers__ import (average_pooling2d, batch_normalization, concat,
-                         conv2d, dense, dropout, flatten, max_pooling2d, relu, softmax)
+from tensorflow.keras import initializers, regularizers
+from tensorflow.keras import layers
 
 
 class GoogLeNet:
@@ -193,3 +192,7 @@ class GoogLeNet:
         model.summary()
 
         return model
+
+
+if __name__ == '__main__':
+    model = GoogLeNet().build(input_shape=(32, 32, 3), classes=10)
