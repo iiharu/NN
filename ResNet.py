@@ -1,28 +1,31 @@
 # -*- coding: utf-8 -*-
 
+
+import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import activations
-from tensorflow.keras import backend as K
-from tensorflow.keras import layers
-from tensorflow.keras import activations, initializers, regularizers
+
+from datasets import cifar10
+from layers import (add, average_pooling2d, batch_normalization, dropout,
+                    flatten, global_average_pooling2d, relu, softmax)
 
 
 def conv2d(filters, kernel_size, strides=1, **kwargs):
-    return layers.Conv2D(filters,
-                         kernel_size,
-                         strides=strides,
-                         padding='same',
-                         use_bias=False,
-                         kernel_initializer=initializers.he_normal(),
-                         kernel_regularizer=regularizers.l2(0.0001),
-                         **kwargs)
+    return keras.layers.Conv2D(filters,
+                               kernel_size,
+                               strides=strides,
+                               padding='same',
+                               use_bias=False,
+                               kernel_initializer=keras.initializers.he_normal(),
+                               kernel_regularizer=keras.regularizers.l2(
+                                   0.0001),
+                               **kwargs)
 
 
 def dense(units, **kwargs):
-    return layers.Dense(units,
-                        kernel_regularizer=regularizers.l2(0.0001),
-                        bias_regularizer=regularizers.l2(0.0001),
-                        **kwargs)
+    return keras.layers.Dense(units,
+                              kernel_regularizer=keras.regularizers.l2(0.0001),
+                              bias_regularizer=keras.regularizers.l2(0.0001),
+                              **kwargs)
 
 
 class ResNet:
@@ -56,7 +59,7 @@ class ResNet:
         self.blocks = blocks
         self.filters = filters
         self.bottleneck = bottleneck
-        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1
+        self.bn_axis = -1 if keras.backend.image_data_format() == 'channels_last' else 1
         self.input_layers = input_layers
         self.output_layer = output_layers
 
@@ -196,7 +199,8 @@ class WideResNet:
         # d: num of residual blocks in conv_i
         self.blocks = (layers - 4) // (3 * self.deeping)
         self.dropout_rate = dropout_rate
-        self.bn_axis = -1 if K.image_data_format() == 'channels_last' else 1  # feature map axis
+        # feature map axis
+        self.bn_axis = -1 if keras.backend.image_data_format() == 'channels_last' else 1
 
     def conv(self, inputs, filters, kernel_size, strides=1):
         inputs = batch_normalization()(inputs)
@@ -215,7 +219,7 @@ class WideResNet:
             outputs = self.conv(outputs, filters=filters,
                                 kernel_size=block, strides=strides)
 
-        if K.int_shape(outputs)[self.bn_axis] != K.int_shape(inputs)[self.bn_axis]:
+        if keras.backend.int_shape(outputs)[self.bn_axis] != keras.backend.int_shape(inputs)[self.bn_axis]:
             strides = 2 if down_sampling else 1
             inputs = self.conv(inputs, filters=filters,
                                kernel_size=(1, 1), strides=strides)
@@ -270,3 +274,39 @@ def WideResNetD28K10():
 
 def WideResNetD28K10D(dropout_rate=0.3):
     return WideResNet(layers=28, widening=10, dropout_rate=0.3)
+
+
+CLASSES = 10
+ROWS, COLS, CHS = 32, 32, 3
+TRAIN_SIZE = 50000
+TEST_SIZE = 10000
+VALIDATION_SPLIT = TEST_SIZE / TRAIN_SIZE
+VALIDATION_SIZE = 5000
+
+BATCH_SIZE = 128
+EPOCHS = 16
+
+if __name__ == '__main__':
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+
+    resnet = ResNet(blocks=[3, 3, 3], filters=[16, 32, 64], input_layers=[conv2d(
+        filters=16, kernel_size=(3, 3))], output_layers=[global_average_pooling2d()])
+    model = resnet.build(input_shape=(ROWS, COLS, CHS, ), classes=CLASSES)
+
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True), loss=keras.losses.categorical_crossentropy, metrics=[
+                  keras.metrics.categorical_accuracy, keras.metrics.top_k_categorical_accuracy])
+    datagen = keras.preprocessing.image.ImageDataGenerator(
+        width_shift_range=4, height_shift_range=4, fill_mode='constant', horizontal_flip=True)
+
+    datagen.fit(X_train)
+
+    history = model.fit_generator(datagen.flow(X_train, Y_train, batch_size=BATCH_SIZE),
+                                  steps_per_epoch=TRAIN_SIZE // 1,
+                                  epochs=EPOCHS,
+                                  verbose=2,
+                                  # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
+                                  validation_data=(X_test, Y_test))
+
+    score = model.evaluate(X_test, Y_test)
+    print("loss: ", score[0])
+    print("acc: ", score[1])

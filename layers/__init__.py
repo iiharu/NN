@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # Activation Layers
-from .activation import activation
-from .activation import elu
 from .activation import linear
 from .activation import relu
-from .activation import selu
 from .activation import sigmoid
 from .activation import softmax
 from .activation import tanh

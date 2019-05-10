@@ -11,3 +11,6 @@
 conda create -n tensorflow python=3
 conda install -n tensorflow
 #+end_src
+
+* TODD:
+- tensorboard integration
