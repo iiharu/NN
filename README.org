@@ -1,46 +1,13 @@
 #+TITLE: Deep Learning
 
 * Requirement
-** Keras
+** TensorFlow
 - Python3
-- NumPy
-- MatPlotLib
 - TensorFlow
-- Keras (tf.keras)
 
+*** Windows
+- Install Miniconda
 #+begin_src shell
-sudo apt install python3-pip python3-tk python3-dev
-pip3 install --user tensorflow keras matplotlib pydot
+conda create -n tensorflow python=3
+conda install -n tensorflow
 #+end_src
-
-#+begin_src shell
-# Install Miniconda to $HOME/.local/opt/miniconda3
-# Source $HOME/.local/opt/miniconda3/etc/profile.d/conda.sh
-conda install -n deeplearning python=3.6 tensorflow keras python-graphviz pydot pillow matplotlib
-# To use virtual env.
-conda activate deeplearning
-#+end_src
-
-** PyTorch
-- Python3
-- Torch
-- TorchVision
-
-#+begin_src shell
-    pip3 install --user torch torchvision
-    pip3 install --user http://download.pytorch.org/whl/cpu/torch-0.4.1-cp35-cp35m-linux_x86_64.whl
-#+end_src
-
-#+begin_src shell
-conda install pytorch -c pytorch
-pip install torchvision
-#+end_src
-
-
-
-* Contains
-
-| File       | DataSets | Model               |
-| MLP.py     | mnist    | MLP (LeNet 300 100) |
-| Cifar10.py | cifar10  | CNN (LeNet5)        |
-| LeNet5.py  | cifar10  | LeNet5              |

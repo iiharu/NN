@@ -1,17 +1,14 @@
 {
-    // Terminal %windir%\System32\cmd.exe "/K" D:\ProgramFiles\Minconda3\Scripts\activate.bat D:\ProgramFiles\Minconda3
+    // Terminal
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "terminal.integrated.shellArgs.windows": [
         "/K",
-        "D:\\ProgramFiles\\Miniconda3\\Scripts\\activate.bat",
-        "D:\\ProgramFiles\\Miniconda3\\envs\\tensorflow"
+        "C:\\ProgramData\\Miniconda3\\Scripts\\activate.bat",
+        "C:\\Users\\iiharu\\.conda\\envs\\tensorflow"
     ],
     // Python
-    "python.pythonPath": "D:\\ProgramFiles\\Minconda3\\envs\\tensorflow\\python.exe",
-    "python.sortImports.args": [
-        "-ns",
-        "__init__.py"
-    ],
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
-} 
+    // "windows": {
+    "python.pythonPath": "C:\\Users\\iiharu\\.conda\\envs\\tensorflow\\python.exe",
+    // },
+
+}
