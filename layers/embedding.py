@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from tensorflow.keras.layers import Embedding
+import tensorflow as tf
+from tensorflow import keras
 
 
 def embedding(input_dim, output_dim,
@@ -11,11 +12,11 @@ def embedding(input_dim, output_dim,
               mask_zero=False,
               input_length=None,
               **kwargs):
-    return Embedding(input_dim, output_dim,
-                     embeddings_initializer=embeddings_initializer,
-                     embeddings_regularizer=embeddings_regularizer,
-                     activity_regularizer=activity_regularizer,
-                     embeddings_constraint=embeddings_constraint,
-                     mask_zero=mask_zero,
-                     input_length=input_length,
-                     **kwargs)
+    return keras.layers.Embedding(input_dim, output_dim,
+                                  embeddings_initializer=embeddings_initializer,
+                                  embeddings_regularizer=embeddings_regularizer,
+                                  activity_regularizer=activity_regularizer,
+                                  embeddings_constraint=embeddings_constraint,
+                                  mask_zero=mask_zero,
+                                  input_length=input_length,
+                                  **kwargs)

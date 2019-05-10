@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from tensorflow.keras.layers import Add
-from tensorflow.keras.layers import Concatenate
+import tensorflow as tf
+from tensorflow import keras
 
 
 def add(**kwargs):
-    return Add(**kwargs)
+    return keras.layers.Add(**kwargs)
 
 
 def concat(axis=-1, **kwargs):
-    return Concatenate(axis=axis, **kwargs)
+    return keras.layers.Concatenate(axis=axis, **kwargs)

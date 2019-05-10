@@ -9,9 +9,6 @@ from .activation import selu
 from .activation import sigmoid
 from .activation import softmax
 from .activation import tanh
-# Block
-from .block import block
-from .block import residual_block
 # Core Layers
 from .core import dense
 from .core import dropout
