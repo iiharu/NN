@@ -1,10 +1,10 @@
 {
-    // Terminal
+    // Terminal %windir%\System32\cmd.exe "/K" D:\ProgramFiles\Minconda3\Scripts\activate.bat D:\ProgramFiles\Minconda3
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "terminal.integrated.shellArgs.windows": [
         "/K",
         "D:\\ProgramFiles\\Miniconda3\\Scripts\\activate.bat",
-        "tensorflow"
+        "D:\\ProgramFiles\\Miniconda3\\envs\\tensorflow"
     ],
     // Python
     "python.pythonPath": "D:\\ProgramFiles\\Minconda3\\envs\\tensorflow\\python.exe",
