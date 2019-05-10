@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import backend as K
-from tensorflow.keras import initializers, regularizers
-from tensorflow.keras import layers
 
+from datasets import cifar10
+from layers import (average_pooling2d, batch_normalization, concat, conv2d,
+                    dense, dropout, flatten, max_pooling2d, relu, softmax)
 
 class GoogLeNet:
     """
@@ -195,4 +196,10 @@ class GoogLeNet:
 
 
 if __name__ == '__main__':
+    (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+    
     model = GoogLeNet().build(input_shape=(32, 32, 3), classes=10)
+
+    model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True), loss=keras.losses.categorical_crossentropy, metrics=[keras.metrics.categorical_accuracy, keras.metrics.top_k_categorical_accuracy])
+
+    
