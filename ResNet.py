@@ -304,6 +304,7 @@ if __name__ == '__main__':
                                   steps_per_epoch=TRAIN_SIZE // 1,
                                   epochs=EPOCHS,
                                   verbose=2,
+                                  callbacks=[keras.callbacks.TensorBoard()],
                                   # callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', verbose=1, mode='auto')],
                                   validation_data=(X_test, Y_test))
 

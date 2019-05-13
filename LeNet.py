@@ -93,7 +93,8 @@ if __name__ == '__main__':
 
     model.compile(optimizer=keras.optimizers.SGD(lr=0.01, momentum=0.9, nesterov=True), loss=keras.losses.categorical_crossentropy, metrics=[keras.metrics.categorical_accuracy])
 
-    history = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=2)
+    # history = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=2)
+    model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=2, callbacks=[keras.callbacks.TensorBoard()])
 
     score = model.evaluate(X_test, Y_test, verbose=0)
 
