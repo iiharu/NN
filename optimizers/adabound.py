@@ -164,7 +164,7 @@ class AdaBound(Optimizer):
         beta_2: float, 0 < beta < 1. Generally close to 1.
         epsilon: float >= 0. Fuzz factor. If `None`, defaults to `K.epsilon()`.
         # decay: float >= 0. Learning rate decay over each update.
-
+        # amsbound:
     """
 
     def __init__(self,
@@ -172,7 +172,7 @@ class AdaBound(Optimizer):
                  beta_1=0.9,
                  beta_2=0.999,
                  epsilon=None,
-                 decay=0.,
+                 # decay=0.,
                  amsbound=False,
                  **kwargs):
         super(AdaBound, self).__init(**kwargs)
@@ -181,12 +181,18 @@ class AdaBound(Optimizer):
             self.alpha = K.variable(alpha, name='alpha')
             self.beta_1 = K.variable(beta_1, name='beta_1')
             self.beta_2 = K.variable(beta_2, name='beta_2')
-            self.decay = K.variable(decay, name='decay')
+            # self.decay = K.variable(decay, name='decay')
         if epsilon is None:
             epsilon = K.epsilon()
         self.epsilon = epsilon
-        self.initial_decay = decay
+        # self.initial_decay = decay
         self.amsbound = amsbound
+
+    def eta_l(self, t):
+        return 0.1 - 0.1 / ((1. - self.beta_2) * t + 1. + self.epsilon)
+
+    def eta_u(self, t):
+        return 0.1 + 0.1 / ((1. - self.beta_2) * t + self.epsilon)
 
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
@@ -200,8 +206,8 @@ class AdaBound(Optimizer):
 
         with ops.control_dependencies([state_ops.assign_add(self.iterations, 1)]):
             t = math_ops.cast(self.iterations, K.floatx())
-        alpha_t = alpha * (K.sqrt(1. - math_ops.pow(self.beta_2, t)
-                                  ) / (1. - math_ops.pow(self.beta_1, t)))
+        # alpha_t = alpha * (K.sqrt(1. - math_ops.pow(self.beta_2, t)
+        #                           ) / (1. - math_ops.pow(self.beta_1, t)))
 
         ms = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
         vs = [K.zeros(K.int_shape(p), dtype=K.dtype(p)) for p in params]
@@ -211,7 +217,28 @@ class AdaBound(Optimizer):
             vhats = [K.zeros(1) for _ in params]
         self.weights = [self.iterations] + ms + vs + vhats
 
-        retrun 0
+        for p, q, m, v, vhat in zip(params, grads, ms, vs, vhats):
+            m_t = (self.beta_1 * m) + (1. - self.beta_1) * g
+            v_t = (self.beta_2 * v) + (1. - self.beta_2) * math_ops.square(g)
+            etahat_t = K.clip(alpha / math_ops.sqrt(v_t), eta_l(t), eta_u(t))
+            eta_t = etahat_t / math_ops.sqrt(t)
+            if self.amsbound:
+                vhat_t = math_ops.maximum(vhat, v_t)
+                p_t = p - eta_t * m_t / (K.sqrt(vhat_t) + self.epsilon)
+                self.updates.append(state_ops.assign(vhat, vhat_t))
+            else:
+                p_t = p - alpha_t * m_t / (K.sqrt(v_t) + self.epsilon)
+
+            self.updates.append(state_ops.assign(m, m_t))
+            self.updates.append(state_ops.assign(v, v_t))
+            new_p = p_t
+
+            # Apply constraints.
+            if getattr(p, 'constraint', Node) is not None:
+                new_p = p.constraint(new_p)
+
+            self.updates.append(state_ops.assign(p, new_p))
+        return self.updates
 
     def get_config(self):
         config = {
