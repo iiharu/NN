@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+# %%
 from tensorflow import keras
 
+# %%
 MAX_FEATURES = 20000
 MAXLEN = 80
 BATCH_SIZE = 32
+
+# %%
 
 
 def prepare(num_words=None, maxlen=None):
@@ -28,6 +32,8 @@ def prepare(num_words=None, maxlen=None):
 
     return (X_train, Y_train), (X_test, Y_test)
 
+# %%
+
 
 def build():
 
@@ -42,23 +48,27 @@ def build():
     return model
 
 
-if __name__ == '__main__':
-    (X_train, Y_train), (X_test, Y_test) = prepare(
-        num_words=MAX_FEATURES, maxlen=MAXLEN)
+# %%
+(X_train, Y_train), (X_test, Y_test) = prepare(
+    num_words=MAX_FEATURES, maxlen=MAXLEN)
 
-    model = build()
+model = build()
 
-    model.compile(loss=keras.losses.binary_crossentropy,
-                  optimizer=keras.optimizers.Adam(),
-                  metrics=['acc'])
+model.compile(loss=keras.losses.binary_crossentropy,
+              optimizer=keras.optimizers.Adam(),
+              metrics=['acc'])
 
-    model.fit(X_train, Y_train,
-              batch_size=BATCH_SIZE,
-              epochs=15,
-              verbose=2,
-              validation_data=(X_test, Y_test))
+# %%
+model.fit(X_train, Y_train,
+          batch_size=BATCH_SIZE,
+          epochs=15,
+          verbose=2,
+          # validation_data=(X_test, Y_test)
+          )
 
-    score = model.evaluate(X_test, Y_test, verbose=2)
+# %%
+# score = model.evaluate(X_test, Y_test, verbose=2)
+score = model.evaluate(X_train, Y_train, verbose=2)
 
-    print('loss:', score[0])
-    print('acc:', score[1])
+print('loss:', score[0])
+print('acc:', score[1])

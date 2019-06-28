@@ -3,12 +3,20 @@
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "terminal.integrated.shellArgs.windows": [
         "/K",
-        "C:\\ProgramData\\Miniconda3\\Scripts\\activate.bat",
-        "C:\\Users\\iiharu\\.conda\\envs\\tensorflow"
+        "D:\\Applications\\Miniconda3\\Scripts\\activate.bat",
+        "D:\\Applications\\Miniconda3\\envs\\tensorflow"
     ],
     // Python
     // "windows": {
-    "python.pythonPath": "C:\\Users\\iiharu\\.conda\\envs\\tensorflow\\python.exe",
+    "python.pythonPath": "D:\\Applications\\Miniconda3\\envs\\tensorflow\\python.exe",
+    "python.linting.pylintPath": "D:\\Applications\\Miniconda3\\envs\\tensorflow\\Scripts\\pylint.exe",
+    "python.autoComplete.extraPaths": [
+        "D:\\Applications\\Miniconda3\\envs\\tensorflow\\Lib\\site-packages",
+    ],
     // },
-
+    "python.linting.pylintArgs": [
+        "--ignore-modules=tensorflow"
+    ],
+    "python.linting.pylintUseMinimalCheckers": true,
+    "python.jediEnabled": false,
 }

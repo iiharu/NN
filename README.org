@@ -8,8 +8,8 @@
 *** Windows
 - Install Miniconda
 #+begin_src shell
-conda create -n tensorflow python=3
-conda install -n tensorflow
+conda create -n tensorflow python=3 jupyter pylint autopep8
+conda install -n tensorflow-gpu
 #+end_src
 
 * TODD:
